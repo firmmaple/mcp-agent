@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>多Agent股票分析系统</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            if (typeof marked !== 'undefined') {
+                console.log('marked.js 加载成功，版本:', marked.getDefaults ? 'v4+' : '可能是旧版本');
+            } else {
+                console.error('marked.js 加载失败');
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 多Agent股票分析系统</h1>
+            <div class="status-bar">
+                <div class="connection-info">
+                    <p>连接状态: <span id="status" class="status status-disconnected">未连接</span></p>
+                    <p>重连次数: <span id="reconnectCount">0</span>/3</p>
+                </div>
+                <div class="mode-info">
+                    <p>分析模式: <span id="currentMode" class="mode-indicator">多Agent并行分析</span></p>
+                    <button id="manualConnectBtn" onclick="manualConnect()" class="control-btn">手动连接</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-section">
+            <h3>股票分析查询</h3>
+            <div class="analysis-info">
+                <p>🔥 <strong>多Agent并行分析</strong> - 基本面、技术面、估值分析三个专业Agent同步工作，生成综合投资报告</p>
+            </div>
+            <div class="query-templates">
+                <button onclick="loadTemplate('茅台')" class="template-btn">茅台分析</button>
+                <button onclick="loadTemplate('比亚迪')" class="template-btn">比亚迪分析</button>
+                <button onclick="loadTemplate('自定义')" class="template-btn">自定义查询</button>
+            </div>
+            <textarea id="queryInput" placeholder="请输入您的查询内容，格式：分析[公司名称]([股票代码])的投资价值">请分析贵州茅台(sh.600519)的投资价值
+
+这是一个多Agent并行分析任务，将由以下三个专业Agent协作完成：
+1. 基本面分析Agent - 分析财务状况、盈利能力、成长性等
+2. 技术分析Agent - 分析价格趋势、技术指标、支撑阻力位等  
+3. 估值分析Agent - 分析估值指标、与行业对比、投资价值等
+
+最终将由汇总Agent整合三个专业分析，生成综合投资建议报告。</textarea>
+            <br>
+            <div class="button-group">
+                <button id="executeBtn" onclick="executeAgent()">
+                    <span class="btn-text">开始多Agent分析</span>
+                </button>
+                <button onclick="clearLogs()">清空日志</button>
+                <button onclick="exportLogs()">导出日志</button>
+            </div>
+        </div>
+        
+        <div class="output-section">
+            <h3>实时分析进度</h3>
+            <div class="log-controls">
+                <div class="control-left">
+                    <label>
+                        <input type="checkbox" id="autoScroll" checked> 自动滚动
+                    </label>
+                    <span class="log-count">日志数量: <span id="logCount">0</span></span>
+                </div>
+                <div class="control-right">
+                    <button onclick="clearLogs()" class="control-btn small">清空</button>
+                    <button onclick="connect()" class="control-btn small">重连</button>
+                </div>
+            </div>
+            <div id="logs" class="log-container"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 

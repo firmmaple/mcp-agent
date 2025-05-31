@@ -1,0 +1,701 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 头部样式 */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    margin-bottom: 15px;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: normal;
+}
+
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.connection-info,
+.mode-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.status-bar p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.mode-indicator {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.control-btn.small {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+/* 输入区域样式 */
+.input-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.input-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 600;
+}
+
+.analysis-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.analysis-info p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.query-templates {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.template-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+.template-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+textarea {
+    width: 100%;
+    height: 120px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+#executeBtn {
+    position: relative;
+    min-width: 140px;
+}
+
+.btn-text {
+    display: inline-block;
+}
+
+.btn-mode {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-left: 5px;
+}
+
+/* 输出区域样式 */
+.output-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.output-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 600;
+}
+
+.log-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.control-left,
+.control-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.log-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.log-controls input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.log-count {
+    font-size: 13px;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.log-container {
+    background: #1e1e1e;
+    color: #f0f0f0;
+    padding: 20px;
+    border-radius: 5px;
+    height: 500px;
+    overflow-y: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.log-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.log-container::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 4px;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.log-container::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+.log-entry {
+    margin-bottom: 8px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.log-info {
+    background: rgba(59, 130, 246, 0.12);
+    border-left-color: #3b82f6;
+}
+
+.log-success {
+    background: rgba(34, 197, 94, 0.12);
+    border-left-color: #22c55e;
+}
+
+.log-error {
+    background: rgba(239, 68, 68, 0.12);
+    border-left-color: #ef4444;
+}
+
+.log-warning {
+    background: rgba(245, 158, 11, 0.12);
+    border-left-color: #f59e0b;
+}
+
+.timestamp {
+    opacity: 0.6;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    color: #9ca3af;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.log-message {
+    color: #f0f0f0;
+    word-wrap: break-word;
+    line-height: 1.4;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Markdown样式支持 */
+.log-message strong,
+.log-message b {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+.log-message code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #60a5fa;
+}
+
+.log-message em,
+.log-message i {
+    color: #a78bfa;
+    font-style: italic;
+}
+
+/* 标题样式 */
+.log-message h1 {
+    color: #fbbf24;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 8px 0 4px 0;
+    border-bottom: 2px solid #fbbf24;
+    padding-bottom: 2px;
+}
+
+.log-message h2 {
+    color: #60a5fa;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 6px 0 3px 0;
+    border-bottom: 1px solid #60a5fa;
+    padding-bottom: 1px;
+}
+
+.log-message h3 {
+    color: #a78bfa;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 5px 0 2px 0;
+}
+
+.log-message h4 {
+    color: #34d399;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 4px 0 2px 0;
+}
+
+.log-message h5,
+.log-message h6 {
+    color: #f87171;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 3px 0 1px 0;
+}
+
+/* 列表样式 */
+.log-message ul,
+.log-message ol {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.log-message li {
+    color: #e5e7eb;
+    margin: 2px 0;
+    line-height: 1.4;
+}
+
+.log-message ul li {
+    list-style-type: disc;
+}
+
+.log-message ol li {
+    list-style-type: decimal;
+}
+
+/* 代码块样式 */
+.log-message pre {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #374151;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 8px 0;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.log-message pre code {
+    background: none;
+    padding: 0;
+    color: #e5e7eb;
+    font-size: inherit;
+}
+
+/* 引用块样式 */
+.log-message blockquote {
+    border-left: 4px solid #6b7280;
+    margin: 8px 0;
+    padding: 4px 0 4px 12px;
+    color: #d1d5db;
+    font-style: italic;
+    background: rgba(107, 114, 128, 0.1);
+}
+
+/* 表格样式 */
+.log-message table,
+.log-message .markdown-table {
+    border-collapse: collapse;
+    margin: 8px 0;
+    width: 100%;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.log-message th,
+.log-message td {
+    border: 1px solid #374151;
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.log-message th {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    font-weight: bold;
+    text-align: center;
+}
+
+.log-message td {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e5e7eb;
+}
+
+/* 表格行交替颜色 */
+.log-message tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* 表格悬停效果 */
+.log-message tr:hover td {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* 水平线样式 */
+.log-message hr {
+    border: none;
+    border-top: 1px solid #4b5563;
+    margin: 12px 0;
+}
+
+/* 链接样式 */
+.log-message a {
+    color: #60a5fa;
+    text-decoration: underline;
+}
+
+.log-message a:hover {
+    color: #93c5fd;
+}
+
+/* 段落间距 */
+.log-message p {
+    margin: 4px 0;
+    line-height: 1.4;
+}
+
+/* 表情符号样式 */
+.log-message {
+    font-feature-settings: "liga", "kern";
+}
+
+/* 特殊文本样式 */
+.log-message:contains("工具调用"),
+.log-message:contains("推理循环") {
+    font-weight: 500;
+}
+
+/* 进度指示器样式 - 在时间戳后添加点号 */
+.log-entry.log-info .timestamp:after {
+    content: " •";
+    color: #3b82f6;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.log-entry.log-success .timestamp:after {
+    content: " •";
+    color: #22c55e;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.log-entry.log-warning .timestamp:after {
+    content: " •";
+    color: #f59e0b;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.log-entry.log-error .timestamp:after {
+    content: " •";
+    color: #ef4444;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+/* 工具调用特殊样式 */
+.log-entry:has(.log-message:contains("工具调用")) {
+    background: rgba(245, 158, 11, 0.15);
+    border-left-color: #f59e0b;
+    border-left-width: 4px;
+}
+
+/* 思考过程特殊样式 */
+.log-entry:has(.log-message:contains("思考过程")),
+.log-entry:has(.log-message:contains("整合思考")) {
+    background: rgba(139, 69, 19, 0.15);
+    border-left-color: #8b4513;
+    font-style: italic;
+}
+
+/* Agent标签样式 */
+.log-message:contains("[基本面分析Agent]") {
+    border-left: 3px solid #10b981;
+    padding-left: 8px;
+}
+
+.log-message:contains("[技术分析Agent]") {
+    border-left: 3px solid #3b82f6;
+    padding-left: 8px;
+}
+
+.log-message:contains("[估值分析Agent]") {
+    border-left: 3px solid #8b5cf6;
+    padding-left: 8px;
+}
+
+.log-message:contains("[汇总分析Agent]") {
+    border-left: 3px solid #f59e0b;
+    padding-left: 8px;
+}
+
+/* 动画效果 */
+.log-entry {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 状态指示器 */
+.status {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-connected {
+    background-color: #22c55e;
+    color: white;
+}
+
+.status-disconnected {
+    background-color: #ef4444;
+    color: white;
+}
+
+.status-connecting {
+    background-color: #3b82f6;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+.status-running {
+    background-color: #f59e0b;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .container {
+        max-width: 100%;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .log-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .control-left,
+    .control-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .log-container {
+        height: 400px;
+    }
+
+    .mode-selector {
+        grid-template-columns: 1fr;
+    }
+
+    .status-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .connection-info,
+    .mode-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .query-templates {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .header, .input-section, .output-section, .mode-section {
+        padding: 15px;
+    }
+
+    textarea {
+        height: 100px;
+    }
+
+    .log-container {
+        height: 350px;
+        padding: 15px;
+    }
+}
+
+.hidden {
+    display: none;
+} 
