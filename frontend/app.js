@@ -5,35 +5,26 @@ let isConnecting = false; // 防止重复连接
 let reconnectAttempts = 0; // 重连尝试次数
 let maxReconnectAttempts = 3; // 最大重连次数
 let reconnectTimer = null; // 重连定时器
+let finalReport = null; // 存储最终报告
 
 // 查询模板
 const queryTemplates = {
-    '茅台': `请分析贵州茅台(sh.600519)的投资价值
-
-这是一个多Agent并行分析任务，将由以下三个专业Agent协作完成：
-1. 基本面分析Agent - 分析财务状况、盈利能力、成长性等
-2. 技术分析Agent - 分析价格趋势、技术指标、支撑阻力位等  
-3. 估值分析Agent - 分析估值指标、与行业对比、投资价值等
-
-最终将由汇总Agent整合三个专业分析，生成综合投资建议报告。`,
-    
-    '比亚迪': `请分析比亚迪(sz.002594)的投资价值
-
-这是一个多Agent并行分析任务，将由以下三个专业Agent协作完成：
-1. 基本面分析Agent - 分析财务状况、盈利能力、成长性等
-2. 技术分析Agent - 分析价格趋势、技术指标、支撑阻力位等  
-3. 估值分析Agent - 分析估值指标、与行业对比、投资价值等
-
-最终将由汇总Agent整合三个专业分析，生成综合投资建议报告。`,
-    
-    '自定义': `请分析[公司名称]([股票代码])的投资价值
-
-格式示例：
-- 请分析贵州茅台(sh.600519)的投资价值
-- 请分析比亚迪(sz.002594)的投资价值
-- 请分析宁德时代(sz.300750)的投资价值
-
-这是一个多Agent并行分析任务，将由基本面、技术面、估值分析三个专业Agent协作完成。`
+    '茅台': {
+        companyName: '贵州茅台',
+        stockCode: 'sh.600519'
+    },
+    '比亚迪': {
+        companyName: '比亚迪',
+        stockCode: 'sz.002594'
+    },
+    '海康威视': {
+        companyName: '海康威视',
+        stockCode: 'sz.002415'
+    },
+    '宁德时代': {
+        companyName: '宁德时代',
+        stockCode: 'sz.300750'
+    }
 };
 
 function connect() {
@@ -126,8 +117,10 @@ function connect() {
 
 function updateStatus(status, text) {
     const statusElement = document.getElementById("status");
-    statusElement.className = `status status-${status}`;
-    statusElement.textContent = text;
+    if (statusElement) {
+        statusElement.className = `status status-${status}`;
+        statusElement.textContent = text;
+    }
 }
 
 function updateReconnectCount() {
@@ -154,10 +147,26 @@ function manualConnect() {
 
 function addLog(message, type = "info", timestamp = null) {
     const logsContainer = document.getElementById("logs");
+    if (!logsContainer) return;
+    
     const logEntry = document.createElement("div");
     logEntry.className = `log-entry log-${type}`;
     
     const time = timestamp || new Date().toLocaleTimeString();
+    
+    // 检查是否是最终报告
+    if (message.includes("📄 最终报告") || message.includes("=== 综合分析报告 ===")) {
+        // 提取报告内容
+        const reportMatch = message.match(/📄 最终报告:\s*([\s\S]*)/);
+        if (reportMatch) {
+            finalReport = reportMatch[1];
+            // 启用下载按钮
+            const downloadBtn = document.getElementById("downloadBtn");
+            if (downloadBtn) {
+                downloadBtn.disabled = false;
+            }
+        }
+    }
     
     // 使用marked.js进行真正的Markdown渲染
     function renderMarkdown(text) {
@@ -235,11 +244,6 @@ function addLog(message, type = "info", timestamp = null) {
                     tables: true          // 明确启用表格支持
                 });
                 
-                // 调试：检查是否包含表格
-                if (text.includes('|') && text.includes('\n')) {
-                    console.log('检测到可能的表格数据:', text.substring(0, 200));
-                }
-                
                 const rendered = marked.parse(preprocessedText);
                 
                 // 调试：检查渲染结果
@@ -280,10 +284,14 @@ function addLog(message, type = "info", timestamp = null) {
     
     // 更新日志计数
     logCount++;
-    document.getElementById("logCount").textContent = logCount;
+    const logCountElement = document.getElementById("logCount");
+    if (logCountElement) {
+        logCountElement.textContent = logCount;
+    }
     
     // 自动滚动
-    if (document.getElementById("autoScroll").checked) {
+    const autoScrollElement = document.getElementById("autoScroll");
+    if (autoScrollElement && autoScrollElement.checked) {
         logsContainer.scrollTop = logsContainer.scrollHeight;
     }
 }
@@ -299,10 +307,27 @@ function executeAgent() {
         return;
     }
     
-    const query = document.getElementById("queryInput").value.trim();
-    if (!query) {
-        addLog("请输入查询内容", "error");
+    const companyNameElement = document.getElementById("companyName");
+    const stockCodeElement = document.getElementById("stockCode");
+    
+    if (!companyNameElement || !stockCodeElement) {
+        addLog("页面元素未正确加载，请刷新页面", "error");
         return;
+    }
+    
+    const companyName = companyNameElement.value.trim();
+    const stockCode = stockCodeElement.value.trim();
+    
+    if (!companyName || !stockCode) {
+        addLog("请输入公司名称和股票代码", "error");
+        return;
+    }
+    
+    // 重置最终报告和下载按钮状态
+    finalReport = null;
+    const downloadBtn = document.getElementById("downloadBtn");
+    if (downloadBtn) {
+        downloadBtn.disabled = true;
     }
     
     isExecuting = true;
@@ -311,16 +336,20 @@ function executeAgent() {
     
     const messageType = 'execute_multi_agent';
     
-    addLog(`开始执行多Agent并行分析...`, "info");
+    addLog(`开始执行多Agent并行分析: ${companyName} (${stockCode})`, "info");
     ws.send(JSON.stringify({
         type: messageType,
-        query: query
+        company_name: companyName,
+        stock_code: stockCode
     }));
 }
 
 function updateExecuteButton() {
     const btn = document.getElementById("executeBtn");
+    if (!btn) return;
+    
     const btnText = btn.querySelector('.btn-text');
+    if (!btnText) return;
     
     btn.disabled = isExecuting;
     
@@ -331,16 +360,74 @@ function updateExecuteButton() {
     }
 }
 
+function downloadReport() {
+    if (!finalReport) {
+        addLog("暂无可下载的报告", "warning");
+        return;
+    }
+    
+    const companyNameElement = document.getElementById("companyName");
+    const stockCodeElement = document.getElementById("stockCode");
+    
+    if (!companyNameElement || !stockCodeElement) {
+        addLog("页面元素未正确加载", "error");
+        return;
+    }
+    
+    const companyName = companyNameElement.value.trim();
+    const stockCode = stockCodeElement.value.trim();
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    
+    // 创建报告内容
+    const reportContent = `${companyName} (${stockCode}) 投资分析报告
+生成时间: ${new Date().toLocaleString()}
+==========================================
+
+${finalReport}
+
+==========================================
+报告由多Agent股票分析系统生成
+包含基本面分析、技术分析、估值分析三个维度的专业分析`;
+    
+    // 创建并下载文件
+    const blob = new Blob([reportContent], { type: 'text/plain; charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `投资分析报告_${companyName}_${stockCode}_${timestamp}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    URL.revokeObjectURL(url);
+    addLog("投资分析报告已下载", "success");
+}
+
 function clearLogs() {
-    document.getElementById("logs").innerHTML = "";
+    const logsElement = document.getElementById("logs");
+    if (logsElement) {
+        logsElement.innerHTML = "";
+    }
+    
     logCount = 0;
-    document.getElementById("logCount").textContent = logCount;
+    const logCountElement = document.getElementById("logCount");
+    if (logCountElement) {
+        logCountElement.textContent = logCount;
+    }
+    
     addLog("日志已清空", "info");
 }
 
 function exportLogs() {
-    const logs = document.getElementById("logs").innerText;
-    const blob = new Blob([logs], { type: 'text/plain' });
+    const logsElement = document.getElementById("logs");
+    if (!logsElement) {
+        addLog("无法获取日志内容", "error");
+        return;
+    }
+    
+    const logs = logsElement.innerText;
+    const blob = new Blob([logs], { type: 'text/plain; charset=utf-8' });
     const url = URL.createObjectURL(blob);
     
     const a = document.createElement('a');
@@ -355,11 +442,23 @@ function exportLogs() {
 }
 
 function loadTemplate(templateType) {
-    const queryInput = document.getElementById("queryInput");
-    if (queryTemplates[templateType]) {
-        queryInput.value = queryTemplates[templateType];
-        addLog(`已加载${templateType}分析模板`, "info");
+    const template = queryTemplates[templateType];
+    if (!template) {
+        addLog(`未找到${templateType}模板`, "error");
+        return;
     }
+    
+    const companyNameElement = document.getElementById("companyName");
+    const stockCodeElement = document.getElementById("stockCode");
+    
+    if (!companyNameElement || !stockCodeElement) {
+        addLog("页面元素未正确加载", "error");
+        return;
+    }
+    
+    companyNameElement.value = template.companyName;
+    stockCodeElement.value = template.stockCode;
+    addLog(`已加载${templateType}分析模板`, "info");
 }
 
 // 页面卸载时清理连接

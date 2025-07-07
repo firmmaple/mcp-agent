@@ -123,6 +123,10 @@ class BaseAgent(ABC):
             def flush_thinking():
                 """输出累积的思考内容"""
                 nonlocal thinking_buffer
+                # 确保thinking_buffer是字符串
+                if isinstance(thinking_buffer, list):
+                    thinking_buffer = str(thinking_buffer)
+                
                 if thinking_buffer.strip():
                     # 清理和格式化思考内容
                     cleaned_thinking = thinking_buffer.strip()
@@ -157,7 +161,11 @@ class BaseAgent(ABC):
                     if "chunk" in event["data"]:
                         chunk = event["data"]["chunk"]
                         if hasattr(chunk, 'content') and chunk.content:
-                            thinking_buffer += chunk.content
+                            # 确保content是字符串类型
+                            content = chunk.content
+                            if isinstance(content, list):
+                                content = str(content)
+                            thinking_buffer += content
                 
                 elif event["event"] == "on_tool_start":
                     # 工具调用前，输出完整的思考过程
@@ -201,7 +209,14 @@ class BaseAgent(ABC):
             # 提取结果
             if final_response and "messages" in final_response:
                 last_message = final_response["messages"][-1]
-                result = last_message.content if hasattr(last_message, 'content') else str(last_message)
+                if hasattr(last_message, 'content'):
+                    # 确保content是字符串类型
+                    if isinstance(last_message.content, list):
+                        result = str(last_message.content)
+                    else:
+                        result = last_message.content
+                else:
+                    result = str(last_message)
             else:
                 result = str(final_response)
             
@@ -210,6 +225,10 @@ class BaseAgent(ABC):
             state[result_key] = result
             
             # 显示分析摘要
+            # 确保result是字符串
+            if isinstance(result, list):
+                result = str(result)
+            
             result_length = len(result)
             word_count = len(result.split())
             await self.send_log(f"📊 **分析完成**: 生成 {result_length} 字符，约 {word_count} 词", "success")

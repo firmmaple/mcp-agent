@@ -118,9 +118,18 @@ async def multi_agent_websocket_endpoint(websocket: WebSocket):
                 print(f"[多Agent] 收到消息: {message.get('type', 'unknown')}")
                 
                 if message["type"] == "execute_multi_agent":
-                    query = message["query"]
-                    print(f"[多Agent] 开始执行查询: {query[:50]}...")
-                    await multi_agent_manager.execute_multi_agent_analysis(query)
+                    # 支持两种格式：新格式（直接传递公司名和股票代码）和旧格式（查询字符串）
+                    if "company_name" in message and "stock_code" in message:
+                        # 新格式：直接传递公司名和股票代码
+                        company_name = message["company_name"]
+                        stock_code = message["stock_code"]
+                        print(f"[多Agent] 开始执行分析: {company_name} ({stock_code})")
+                        await multi_agent_manager.execute_multi_agent_analysis_direct(company_name, stock_code)
+                    else:
+                        # 旧格式：查询字符串（向后兼容）
+                        query = message["query"]
+                        print(f"[多Agent] 开始执行查询: {query[:50]}...")
+                        await multi_agent_manager.execute_multi_agent_analysis(query)
                     
                 elif message["type"] == "ping":
                     # 心跳检测

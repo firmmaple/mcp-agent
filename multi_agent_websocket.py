@@ -111,6 +111,39 @@ class MultiAgentWebSocketManager:
             await self.send_log(f"错误详情: {error_details}", "error")
             await self.send_log("执行完成", "execution_complete")
 
+    async def execute_multi_agent_analysis_direct(self, company_name: str, stock_code: str):
+        """直接执行多agent分析，无需解析查询"""
+        try:
+            await self.send_log(f"开始分析: {company_name} ({stock_code})", "info")
+            
+            # 验证输入
+            if not company_name or not stock_code:
+                await self.send_log("公司名称或股票代码不能为空", "error")
+                await self.send_log("执行完成", "execution_complete")
+                return
+                
+            await self.send_log(f"分析目标 - 公司名称: {company_name}, 股票代码: {stock_code}", "success")
+            
+            # 运行多agent分析
+            await self.send_log("启动多Agent分析系统...", "info")
+            final_report = await self.workflow.run_analysis(company_name, stock_code)
+            
+            if final_report:
+                await self.send_log("=== 综合分析报告 ===", "success")
+                await self.send_log(f"📄 最终报告:\n{final_report}", "success")
+            else:
+                await self.send_log("未能生成最终报告", "error")
+            
+            # 发送执行完成信号
+            await self.send_log("执行完成", "execution_complete")
+            
+        except Exception as e:
+            await self.send_log(f"执行过程中发生错误: {e}", "error")
+            import traceback
+            error_details = traceback.format_exc()
+            await self.send_log(f"错误详情: {error_details}", "error")
+            await self.send_log("执行完成", "execution_complete")
+
 # 测试函数
 async def test_parse_query():
     """测试查询解析功能"""

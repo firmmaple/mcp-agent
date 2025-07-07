@@ -34,7 +34,8 @@ class MultiAgentWorkflow:
         self.websocket = websocket
         self.client = MultiServerMCPClient({
             "a_share_data_provider": {
-                "url": "http://mcp-server.danglingpointer.top:3000/mcp/",
+                # "url": "http://165.22.115.184:3000/mcp/",
+                "url": "http://localhost:3000/mcp/",
                 "transport": "streamable_http",
             }
         })

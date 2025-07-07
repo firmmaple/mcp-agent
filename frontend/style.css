@@ -114,7 +114,7 @@ body {
 .query-templates {
     display: flex;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
@@ -133,6 +133,85 @@ body {
 .template-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* 输入表单样式 */
+.input-form {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #999;
+}
+
+/* 分析说明样式 */
+.analysis-description {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    margin-bottom: 20px;
+}
+
+.analysis-description h4 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+}
+
+.analysis-description p {
+    margin-bottom: 10px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.analysis-description ul {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.analysis-description li {
+    margin-bottom: 5px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 textarea {
@@ -180,6 +259,15 @@ button:disabled {
 #executeBtn {
     position: relative;
     min-width: 140px;
+}
+
+#downloadBtn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    min-width: 140px;
+}
+
+#downloadBtn:hover:not(:disabled) {
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
 }
 
 .btn-text {
@@ -247,7 +335,7 @@ button:disabled {
     color: #f0f0f0;
     padding: 20px;
     border-radius: 5px;
-    height: 500px;
+    height: 700px;
     overflow-y: auto;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 14px;
@@ -657,7 +745,7 @@ button:disabled {
     }
 
     .log-container {
-        height: 400px;
+        height: 550px;
     }
 
     .mode-selector {
@@ -691,7 +779,7 @@ button:disabled {
     }
 
     .log-container {
-        height: 350px;
+        height: 450px;
         padding: 15px;
     }
 }

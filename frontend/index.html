@@ -39,20 +39,38 @@
             <div class="query-templates">
                 <button onclick="loadTemplate('茅台')" class="template-btn">茅台分析</button>
                 <button onclick="loadTemplate('比亚迪')" class="template-btn">比亚迪分析</button>
-                <button onclick="loadTemplate('自定义')" class="template-btn">自定义查询</button>
+                <button onclick="loadTemplate('海康威视')" class="template-btn">海康威视分析</button>
+                <button onclick="loadTemplate('宁德时代')" class="template-btn">宁德时代分析</button>
             </div>
-            <textarea id="queryInput" placeholder="请输入您的查询内容，格式：分析[公司名称]([股票代码])的投资价值">请分析贵州茅台(sh.600519)的投资价值
-
-这是一个多Agent并行分析任务，将由以下三个专业Agent协作完成：
-1. 基本面分析Agent - 分析财务状况、盈利能力、成长性等
-2. 技术分析Agent - 分析价格趋势、技术指标、支撑阻力位等  
-3. 估值分析Agent - 分析估值指标、与行业对比、投资价值等
-
-最终将由汇总Agent整合三个专业分析，生成综合投资建议报告。</textarea>
-            <br>
+            
+            <div class="input-form">
+                <div class="form-group">
+                    <label for="companyName">公司名称：</label>
+                    <input type="text" id="companyName" placeholder="请输入公司名称，如：贵州茅台" value="贵州茅台">
+                </div>
+                <div class="form-group">
+                    <label for="stockCode">股票代码：</label>
+                    <input type="text" id="stockCode" placeholder="请输入股票代码，如：sh.600519" value="sh.600519">
+                </div>
+            </div>
+            
+            <div class="analysis-description">
+                <h4>分析内容说明：</h4>
+                <p>本系统将由以下三个专业Agent协作完成分析：</p>
+                <ul>
+                    <li><strong>基本面分析Agent</strong> - 分析财务状况、盈利能力、成长性等</li>
+                    <li><strong>技术分析Agent</strong> - 分析价格趋势、技术指标、支撑阻力位等</li>
+                    <li><strong>估值分析Agent</strong> - 分析估值指标、与行业对比、投资价值等</li>
+                </ul>
+                <p>最终将由汇总Agent整合三个专业分析，生成综合投资建议报告。</p>
+            </div>
+            
             <div class="button-group">
                 <button id="executeBtn" onclick="executeAgent()">
                     <span class="btn-text">开始多Agent分析</span>
+                </button>
+                <button id="downloadBtn" onclick="downloadReport()" disabled>
+                    <span class="btn-text">📥 下载分析报告</span>
                 </button>
                 <button onclick="clearLogs()">清空日志</button>
                 <button onclick="exportLogs()">导出日志</button>
