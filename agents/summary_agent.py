@@ -102,7 +102,7 @@ class SummaryAgent(BaseAgent):
                         # 报告生成结束时，输出完整的思考内容
                         thinking_content = flush_thinking()
                         if thinking_content:
-                            await self.send_log(f"💭 **整合思考**: \n{thinking_content}", "info")
+                            await self.send_log(f"💭 **整合思考**:\n{thinking_content}", "info")
                         await self.send_log("✨ **综合报告生成完成**", "success")
             
             # 获取最终结果

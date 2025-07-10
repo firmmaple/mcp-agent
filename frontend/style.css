@@ -290,7 +290,7 @@ button:disabled {
 
 .output-section h3 {
     margin-bottom: 15px;
-    color: #333;
+    color: #a78bfa;
     font-weight: 600;
 }
 
@@ -406,6 +406,27 @@ button:disabled {
     line-height: 1.4;
     flex: 1;
     min-width: 0;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+/* 表格容器的滚动条样式 */
+.log-message::-webkit-scrollbar {
+    height: 8px;
+}
+
+.log-message::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.log-message::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 4px;
+}
+
+.log-message::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
 }
 
 /* Markdown样式支持 */
@@ -416,12 +437,14 @@ button:disabled {
 }
 
 .log-message code {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(37, 99, 235, 0.3);
     padding: 2px 6px;
     border-radius: 3px;
     font-family: 'Courier New', monospace;
     font-size: 12px;
-    color: #60a5fa;
+    color: #ffffff;
+    border: 1px solid rgba(37, 99, 235, 0.5);
+    font-weight: 500;
 }
 
 .log-message em,
@@ -527,11 +550,12 @@ button:disabled {
 .log-message .markdown-table {
     border-collapse: collapse;
     margin: 8px 0;
-    width: 100%;
+    width: auto;
+    min-width: 100%;
     font-size: 12px;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 4px;
-    overflow: hidden;
+    display: table;
 }
 
 .log-message th,
@@ -540,6 +564,9 @@ button:disabled {
     padding: 6px 8px;
     text-align: left;
     vertical-align: top;
+    word-wrap: break-word;
+    max-width: 200px;
+    min-width: 80px;
 }
 
 .log-message th {
@@ -767,6 +794,19 @@ button:disabled {
     .query-templates {
         flex-direction: column;
     }
+
+    /* 移动端表格样式 */
+    .log-message table,
+    .log-message .markdown-table {
+        font-size: 11px;
+    }
+
+    .log-message th,
+    .log-message td {
+        padding: 4px 6px;
+        max-width: 120px;
+        min-width: 60px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -781,6 +821,19 @@ button:disabled {
     .log-container {
         height: 450px;
         padding: 15px;
+    }
+
+    /* 小屏幕表格样式 */
+    .log-message table,
+    .log-message .markdown-table {
+        font-size: 10px;
+    }
+
+    .log-message th,
+    .log-message td {
+        padding: 3px 5px;
+        max-width: 100px;
+        min-width: 50px;
     }
 }
 

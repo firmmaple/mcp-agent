@@ -171,14 +171,14 @@ class BaseAgent(ABC):
                     # 工具调用前，输出完整的思考过程
                     thinking_content = flush_thinking()
                     if thinking_content:
-                        await self.send_log(f"💭 **思考过程** \n{thinking_content}", "info")
+                        await self.send_log(f"💭 **思考过程**\n{thinking_content}", "info")
                     
                     tool_count += 1
                     tool_name = event["name"]
                     tool_input = event["data"].get("input", {})
                     
                     # 显示完整的工具参数
-                    await self.send_log(f"🔧 **工具调用 #{tool_count} ** \n- 工具: `{tool_name}` \n- 参数: {tool_input}", "warning")
+                    await self.send_log(f"🔧 **工具调用 #{tool_count}**\n- 工具: `{tool_name}`\n- 参数: {tool_input}", "warning")
                     # await self.send_log(f"📝 **参数**: {tool_input}", "info")
                 
                 elif event["event"] == "on_tool_end":
@@ -199,7 +199,7 @@ class BaseAgent(ABC):
                         # 推理循环结束时，输出最后的思考内容
                         thinking_content = flush_thinking()
                         if thinking_content:
-                            await self.send_log(f"💭 **最终思考 #{reasoning_count}** \n{thinking_content}", "info")
+                            await self.send_log(f"💭 **最终思考 #{reasoning_count}**\n{thinking_content}", "info")
                         await self.send_log(f"✨ **推理循环 #{reasoning_count}** 完成", "success")
             
             # 获取最终结果
@@ -234,7 +234,7 @@ class BaseAgent(ABC):
             await self.send_log(f"📊 **分析完成**: 生成 {result_length} 字符，约 {word_count} 词", "success")
             
             # 显示完整结果
-            await self.send_log(f"📄 **完整分析结果** \n{result}", "success")
+            await self.send_log(f"📄 **完整分析结果**\n{result}", "success")
             
             await self.send_log(f"🎉 **{self.description}** 执行完成！", "success")
             
