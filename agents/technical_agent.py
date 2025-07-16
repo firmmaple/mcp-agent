@@ -11,10 +11,11 @@ from .base_agent import BaseAgent
 class TechnicalAgent(BaseAgent):
     """技术分析Agent"""
     
-    def __init__(self):
+    def __init__(self, verbose: bool = True):
         super().__init__(
             name="技术分析Agent",
-            description="技术分析"
+            description="技术分析",
+            verbose=verbose
         )
     
     def get_result_key(self) -> str:

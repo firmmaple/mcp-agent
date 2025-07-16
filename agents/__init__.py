@@ -14,11 +14,13 @@ from .fundamental_agent import FundamentalAgent
 from .technical_agent import TechnicalAgent
 from .valuation_agent import ValuationAgent
 from .summary_agent import SummaryAgent
+from .investment_agent import InvestmentAgent
 
 __all__ = [
     'BaseAgent',
     'FundamentalAgent', 
     'TechnicalAgent',
     'ValuationAgent',
-    'SummaryAgent'
+    'SummaryAgent',
+    'InvestmentAgent'
 ] 

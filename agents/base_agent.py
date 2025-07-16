@@ -18,16 +18,18 @@ class BaseAgent(ABC):
     所有专业分析Agent都应该继承这个类
     """
     
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, description: str, verbose: bool = True):
         """
         初始化基础Agent
         
         Args:
             name: Agent名称
             description: Agent描述
+            verbose: 是否打印详细日志
         """
         self.name = name
         self.description = description
+        self.verbose = verbose
         self.llm = None
         self.tools = None
         self.websocket = None
@@ -55,7 +57,14 @@ class BaseAgent(ABC):
                 "timestamp": timestamp
             }))
         else:
-            print(f"[{self.name}] [{log_type.upper()}] {message}")
+            # 根据verbose参数决定是否打印日志
+            if self.verbose:
+                print(f"[{self.name}] [{log_type.upper()}] {message}")
+    
+    def verbose_print(self, message: str):
+        """根据verbose参数决定是否打印消息"""
+        if self.verbose:
+            print(message)
     
     def create_prompt(self, state: Dict[str, Any]) -> str:
         """

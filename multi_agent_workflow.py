@@ -13,7 +13,7 @@ from fastapi import WebSocket
 import json
 
 # 导入新创建的agent类
-from agents import FundamentalAgent, TechnicalAgent, ValuationAgent, SummaryAgent
+from agents import FundamentalAgent, TechnicalAgent, ValuationAgent, SummaryAgent, InvestmentAgent
 
 load_dotenv()
 
@@ -22,16 +22,21 @@ class MultiAgentState(TypedDict):
     stock_code: str
     current_time_info: str
     current_date: str
+    current_price: float
+    historical_prices: list
+    portfolio_state: dict
     fundamental_analysis: str
     technical_analysis: str
     valuation_analysis: str
     summary_analysis: str
+    investment_decision: str
     final_report: str
     messages: Annotated[list[BaseMessage], add_messages]
 
 class MultiAgentWorkflow:
-    def __init__(self, websocket: WebSocket = None):
+    def __init__(self, websocket: WebSocket = None, verbose: bool = True):
         self.websocket = websocket
+        self.verbose = verbose
         self.client = MultiServerMCPClient({
             "a_share_data_provider": {
                 # "url": "http://165.22.115.184:3000/mcp/",
@@ -42,11 +47,12 @@ class MultiAgentWorkflow:
         self.tools = None
         self.llm = None
         
-        # 初始化agent实例
-        self.fundamental_agent = FundamentalAgent()
-        self.technical_agent = TechnicalAgent()
-        self.valuation_agent = ValuationAgent()
-        self.summary_agent = SummaryAgent()
+        # 初始化agent实例，传入verbose参数
+        self.fundamental_agent = FundamentalAgent(verbose=self.verbose)
+        self.technical_agent = TechnicalAgent(verbose=self.verbose)
+        self.valuation_agent = ValuationAgent(verbose=self.verbose)
+        self.summary_agent = SummaryAgent(verbose=self.verbose)
+        self.investment_agent = InvestmentAgent(verbose=self.verbose)
         
     async def send_log(self, message: str, log_type: str = "info"):
         """发送日志消息到前端"""
@@ -78,7 +84,7 @@ class MultiAgentWorkflow:
             
             # 为所有agent设置LLM、工具和WebSocket
             for agent in [self.fundamental_agent, self.technical_agent, 
-                         self.valuation_agent, self.summary_agent]:
+                         self.valuation_agent, self.summary_agent, self.investment_agent]:
                 agent.set_llm(self.llm)
                 agent.set_tools(self.tools)
                 agent.set_websocket(self.websocket)
@@ -128,16 +134,45 @@ class MultiAgentWorkflow:
             # 使用汇总agent进行分析
             result_state = await self.summary_agent.analyze(state)
             
-            # 将汇总结果也作为最终报告
-            result_state["final_report"] = result_state.get("summary_analysis", "报告生成失败")
-            
             await self.send_log("✅ 综合分析报告生成完成", "success")
             return result_state
             
         except Exception as e:
             await self.send_log(f"❌ 综合分析报告生成失败: {e}", "error")
             state["summary_analysis"] = f"综合分析报告生成失败: {e}"
-            state["final_report"] = state["summary_analysis"]
+            return state
+    
+    async def investment_agent_node(self, state: MultiAgentState) -> MultiAgentState:
+        """投资决策节点"""
+        await self.send_log("💰 开始生成投资决策指令...", "info")
+        
+        try:
+            # 使用投资决策agent进行分析
+            result_state = await self.investment_agent.analyze(state)
+            
+            # 将投资决策结果整合到最终报告
+            summary_analysis = result_state.get("summary_analysis", "")
+            investment_decision = result_state.get("investment_decision", {})
+            
+            # 获取投资决策的原始文本
+            investment_text = ""
+            if isinstance(investment_decision, dict):
+                investment_text = investment_decision.get("raw_decision", "")
+            else:
+                investment_text = str(investment_decision)
+            
+            # 组合最终报告
+            final_report = f"{summary_analysis}\n\n---\n\n{investment_text}"
+            result_state["final_report"] = final_report
+            
+            await self.send_log("✅ 投资决策指令生成完成", "success")
+            return result_state
+            
+        except Exception as e:
+            await self.send_log(f"❌ 投资决策指令生成失败: {e}", "error")
+            state["investment_decision"] = f"投资决策指令生成失败: {e}"
+            # 如果投资决策失败，使用summary作为最终报告
+            state["final_report"] = state.get("summary_analysis", "分析失败")
             return state
     
     def create_workflow(self):
@@ -148,6 +183,7 @@ class MultiAgentWorkflow:
         workflow.add_node("router", self.router_node)
         workflow.add_node("parallel_analysis", self.parallel_analysis)
         workflow.add_node("summary", self.summary_agent_node)
+        workflow.add_node("investment", self.investment_agent_node)
         
         # 设置入口点
         workflow.set_entry_point("router")
@@ -155,7 +191,8 @@ class MultiAgentWorkflow:
         # 设置边
         workflow.add_edge("router", "parallel_analysis")
         workflow.add_edge("parallel_analysis", "summary")
-        workflow.add_edge("summary", END)
+        workflow.add_edge("summary", "investment")
+        workflow.add_edge("investment", END)
         
         return workflow.compile()
     
@@ -172,10 +209,14 @@ class MultiAgentWorkflow:
             stock_code=stock_code,
             current_time_info=current_time.strftime("%Y年%m月%d日 %H:%M:%S"),
             current_date=current_time.strftime("%Y-%m-%d"),
+            current_price=0.0,
+            historical_prices=[],
+            portfolio_state={},
             fundamental_analysis="",
             technical_analysis="",
             valuation_analysis="",
             summary_analysis="",
+            investment_decision="",
             final_report="",
             messages=[]
         )
@@ -197,6 +238,81 @@ class MultiAgentWorkflow:
         except Exception as e:
             await self.send_log(f"❌ 工作流执行失败: {e}", "error")
             return f"分析过程中发生错误: {e}"
+    
+    async def run(self, input_data: dict) -> dict:
+        """
+        运行工作流的简化接口
+        
+        Args:
+            input_data: 包含stock_code, company_name等的输入数据
+            
+        Returns:
+            包含所有分析结果的字典
+        """
+        # 准备状态
+        current_time = datetime.datetime.now()
+        initial_state = MultiAgentState(
+            company_name=input_data.get("company_name", ""),
+            stock_code=input_data.get("stock_code", ""),
+            current_time_info=input_data.get("current_time_info", current_time.strftime("%Y年%m月%d日 %H:%M:%S")),
+            current_date=input_data.get("current_date", current_time.strftime("%Y-%m-%d")),
+            current_price=input_data.get("current_price", 0.0),
+            historical_prices=input_data.get("historical_prices", []),
+            portfolio_state=input_data.get("portfolio_state", {}),
+            fundamental_analysis="",
+            technical_analysis="",
+            valuation_analysis="",
+            summary_analysis="",
+            investment_decision="",
+            final_report="",
+            messages=[]
+        )
+        
+        await self.send_log(f"🚀 开始分析 {input_data.get('company_name', '')}({input_data.get('stock_code', '')})", "info")
+        
+        # 初始化工具和模型
+        if not await self.initialize():
+            return {
+                "error": "初始化失败",
+                "investment_decision": {
+                    "action": "HOLD",
+                    "confidence": 0.0,
+                    "target_price": None,
+                    "stop_loss": None,
+                    "position_size": 0.0,
+                    "holding_period": "medium",
+                    "risk_level": "medium",
+                    "reasons": ["初始化失败"]
+                }
+            }
+        
+        # 创建并运行工作流
+        app = self.create_workflow()
+        
+        try:
+            # 运行工作流
+            result = await app.ainvoke(initial_state)
+            
+            await self.send_log("🎉 所有分析完成！", "success")
+            
+            # 返回完整的状态结果
+            return result
+            
+        except Exception as e:
+            await self.send_log(f"❌ 工作流执行失败: {e}", "error")
+            return {
+                "error": f"分析过程中发生错误: {e}",
+                "investment_decision": {
+                    "action": "HOLD",
+                    "confidence": 0.0,
+                    "target_price": None,
+                    "stop_loss": None,
+                    "position_size": 0.0,
+                    "holding_period": "medium",
+                    "risk_level": "medium",
+                    "reasons": [f"分析失败: {str(e)}"]
+                }
+            }
 
 # 测试函数
 async def test_multi_agent():

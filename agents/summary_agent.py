@@ -13,10 +13,11 @@ from langgraph.prebuilt import create_react_agent
 class SummaryAgent(BaseAgent):
     """汇总分析Agent"""
     
-    def __init__(self):
+    def __init__(self, verbose: bool = True):
         super().__init__(
             name="汇总分析Agent",
-            description="综合分析汇总"
+            description="综合分析汇总",
+            verbose=verbose
         )
     
     def get_result_key(self) -> str:
