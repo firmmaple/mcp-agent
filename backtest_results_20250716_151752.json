@@ -1,0 +1,47 @@
+{
+  "initial_capital": 100000.0,
+  "final_value": 100791.49324520526,
+  "total_return": 0.007914932452052598,
+  "total_profit": 791.4932452052599,
+  "max_value": 100791.49324520526,
+  "min_value": 100000.0,
+  "volatility": 0,
+  "sharpe_ratio": 0,
+  "max_drawdown": 0.0,
+  "total_trades": 2,
+  "winning_trades": 0,
+  "daily_values": [
+    {
+      "date": "2025-01-16",
+      "portfolio_value": 100000.0,
+      "cash": 60000.0,
+      "stock_value": 40000.0
+    },
+    {
+      "date": "2025-02-15",
+      "portfolio_value": 100791.49324520526,
+      "cash": 30000.0,
+      "stock_value": 70791.49324520526
+    }
+  ],
+  "transactions": [
+    {
+      "date": "2025-01-16",
+      "stock_code": "sh.600519",
+      "action": "BUY",
+      "shares": 27.655249657766284,
+      "price": 1446.38,
+      "amount": 40000.0,
+      "confidence": 0.88
+    },
+    {
+      "date": "2025-02-15",
+      "stock_code": "sh.600519",
+      "action": "BUY",
+      "shares": 20.338983050847457,
+      "price": 1475.0,
+      "amount": 30000.0,
+      "confidence": 0.85
+    }
+  ]
+}

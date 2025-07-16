@@ -1,0 +1,895 @@
+/* 回测系统 CSS 样式 */
+
+/* 全局重置和基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+/* 动画定义 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40%, 43% {
+        transform: translateY(-10px);
+    }
+    70% {
+        transform: translateY(-5px);
+    }
+    90% {
+        transform: translateY(-2px);
+    }
+}
+
+/* 页面头部 */
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+    animation: slideIn 0.8s ease-out 0.2s both;
+}
+
+.system-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.system-info p {
+    color: #666;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.system-status {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.status-indicator {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    animation: bounce 2s infinite;
+}
+
+.version {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* 配置区域 */
+.config-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideIn 0.8s ease-out 0.4s both;
+}
+
+.config-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 700;
+}
+
+/* 表单样式 */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: #333;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-group input::placeholder {
+    color: #a0aec0;
+}
+
+/* 股票选择器 */
+.stock-selector {
+    background: #f8fafc;
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid #e2e8f0;
+}
+
+.stock-search {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stock-search button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stock-search button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.quick-select {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 15px;
+}
+
+.quick-select label {
+    color: #667eea;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.stock-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.stock-chip {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.stock-chip:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.stock-chip.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stock-chip.reload-btn {
+    background: rgba(34, 197, 94, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    font-weight: 600;
+}
+
+.stock-chip.reload-btn:hover {
+    background: rgba(34, 197, 94, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+/* 参数建议提示 */
+.tips-section {
+    background: #f0f9ff;
+    border: 2px solid #e0f2fe;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 25px 0;
+}
+
+.tips-section h3 {
+    color: #0369a1;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #e0f2fe;
+}
+
+.tip-icon {
+    font-size: 1.5rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.tip-content strong {
+    color: #0369a1;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.tip-content p {
+    color: #64748b;
+    font-size: 0.8rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* 操作按钮 */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.primary-btn,
+.secondary-btn,
+.tertiary-btn,
+.download-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    min-width: 160px;
+    justify-content: center;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.primary-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.secondary-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+.secondary-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+}
+
+.tertiary-btn {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.3);
+}
+
+.tertiary-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(107, 114, 128, 0.4);
+}
+
+.download-btn {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+}
+
+.download-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(5, 150, 105, 0.4);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+}
+
+/* 进度条区域 */
+.progress-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideIn 0.8s ease-out 0.6s both;
+}
+
+.progress-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 700;
+}
+
+.progress-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.progress-bar {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background: #e2e8f0;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shine 2s infinite;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.progress-message {
+    text-align: center;
+    color: #666;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* 结果展示区域 */
+.results-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideIn 0.8s ease-out 0.8s both;
+}
+
+.results-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 700;
+}
+
+/* 指标卡片 */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.metric-icon {
+    font-size: 2.5rem;
+    min-width: 60px;
+    text-align: center;
+}
+
+.metric-content h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.metric-change {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.metric-change.positive {
+    color: #059669;
+}
+
+.metric-change.negative {
+    color: #dc2626;
+}
+
+.metric-sub {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+/* 图表区域 */
+.charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;  /* 改为等宽布局 */
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.chart-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    min-height: 500px;  /* 确保最小高度 */
+}
+
+.chart-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: 600;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 420px;  /* 调整高度为固定值 */
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.chart-wrapper canvas {
+    width: 100% !important;  /* 强制宽度100% */
+    height: 100% !important; /* 强制高度100% */
+    display: block;
+    margin: 0 auto;
+    /* 确保Canvas清晰度 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* 交易记录表格 */
+.transactions-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+}
+
+.transactions-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: 600;
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+tr:hover {
+    background: #e2e8f0;
+}
+
+.action-buy {
+    color: #059669;
+    font-weight: 600;
+}
+
+.action-sell {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.action-hold {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+/* 下载区域 */
+.download-section {
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* 提示消息 */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+}
+
+.toast {
+    background: white;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #667eea;
+    animation: slideInRight 0.5s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toast.success {
+    border-left-color: #059669;
+}
+
+.toast.error {
+    border-left-color: #dc2626;
+}
+
+.toast.warning {
+    border-left-color: #f59e0b;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .charts-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .system-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .stock-search {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .chart-wrapper {
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header,
+    .config-section,
+    .progress-section,
+    .results-section {
+        padding: 20px 15px;
+    }
+    
+    .metric-card {
+        padding: 20px 15px;
+    }
+    
+    .chart-section,
+    .transactions-section {
+        padding: 20px 15px;
+    }
+} 
+
+/* 响应式设计 - 图表优化 */
+@media (max-width: 1200px) {
+    .charts-container {
+        grid-template-columns: 1fr;  /* 小屏幕下垂直排列 */
+        gap: 20px;
+    }
+    
+    .chart-wrapper {
+        height: 400px;
+    }
+    
+    .chart-section {
+        min-height: 450px;
+    }
+}
+
+@media (max-width: 768px) {
+    .charts-container {
+        gap: 15px;
+    }
+    
+    .chart-wrapper {
+        height: 350px;
+    }
+    
+    .chart-section {
+        padding: 20px;
+        min-height: 400px;
+    }
+    
+    .chart-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-wrapper {
+        height: 300px;
+    }
+    
+    .chart-section {
+        padding: 15px;
+        min-height: 350px;
+    }
+    
+    .chart-section h3 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+}
+
+/* 确保图表容器正确显示 */
+.chart-wrapper {
+    /* 确保容器能正确包含内容 */
+    contain: layout style;
+    /* 防止内容溢出 */
+    overflow: hidden;
+}
+
+/* 图表Canvas特殊优化 */
+.chart-wrapper canvas {
+    /* 确保在各种容器中都能正确显示 */
+    object-fit: contain;
+    /* 防止拉伸变形 */
+    object-position: center;
+}
+
+/* 大屏幕优化 - 确保图表能充分利用空间 */
+@media (min-width: 1400px) {
+    .charts-container {
+        gap: 30px;
+    }
+    
+    .chart-wrapper {
+        height: 480px;
+    }
+    
+    .chart-section {
+        min-height: 540px;
+    }
+}
+
+/* 高DPI屏幕优化 */
+@media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2) {
+    .chart-wrapper canvas {
+        /* 确保高DPI屏幕上的清晰度 */
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        image-rendering: pixelated;
+    }
+}
+
+/* 深色模式支持（预备） */
+@media (prefers-color-scheme: dark) {
+    .chart-section {
+        background: #1f2937;
+        color: #f9fafb;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .chart-section h3 {
+        color: #f9fafb;
+    }
+} 

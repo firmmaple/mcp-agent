@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 投资回测系统</title>
+    <link rel="stylesheet" href="/static/backtest_style.css">
+    
+    <!-- Chart.js 增强版多源加载策略 -->
+    <script>
+        console.log('🔍 开始Chart.js增强版多源加载策略...');
+        
+        // Chart.js CDN源列表（优化顺序）
+        const chartJSources = [
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js',
+            'https://unpkg.com/chart.js@4.4.0/dist/chart.umd.js',
+            'https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.js'
+        ];
+        
+        let currentSourceIndex = 0;
+        let loadAttempts = 0;
+        const maxAttempts = 3;
+        
+        function loadChartJS() {
+            return new Promise((resolve, reject) => {
+                if (typeof Chart !== 'undefined') {
+                    console.log('✅ Chart.js已存在');
+                    window.chartJSReady = true;
+                    resolve();
+                    return;
+                }
+                
+                if (currentSourceIndex >= chartJSources.length) {
+                    if (loadAttempts < maxAttempts) {
+                        console.log(`🔄 第 ${loadAttempts + 1} 轮重试所有源...`);
+                        currentSourceIndex = 0;
+                        loadAttempts++;
+                        setTimeout(() => {
+                            loadChartJS().then(resolve).catch(reject);
+                        }, 1000);
+                        return;
+                    } else {
+                        console.error('❌ 所有Chart.js源都加载失败');
+                        window.chartJSReady = false;
+                        window.chartJSError = '所有源都加载失败';
+                        reject(new Error('所有Chart.js源都加载失败'));
+                        return;
+                    }
+                }
+                
+                const script = document.createElement('script');
+                script.src = chartJSources[currentSourceIndex];
+                script.crossOrigin = 'anonymous';
+                
+                console.log(`🔄 尝试加载Chart.js源 ${currentSourceIndex + 1}/${chartJSources.length} (第${loadAttempts + 1}轮): ${script.src}`);
+                
+                const timeoutId = setTimeout(() => {
+                    console.error(`⏰ Chart.js加载超时: ${script.src}`);
+                    script.remove();
+                    currentSourceIndex++;
+                    loadChartJS().then(resolve).catch(reject);
+                }, 8000);
+                
+                script.onload = () => {
+                    clearTimeout(timeoutId);
+                    
+                    // 等待一小段时间确保Chart对象完全初始化
+                    setTimeout(() => {
+                        if (typeof Chart !== 'undefined' && Chart.version) {
+                            console.log(`✅ Chart.js加载成功，来源: ${script.src}`);
+                            console.log(`📊 Chart.js版本: ${Chart.version}`);
+                            window.chartJSReady = true;
+                            resolve();
+                        } else {
+                            console.warn(`⚠️ 脚本加载但Chart未完全初始化: ${script.src}`);
+                            currentSourceIndex++;
+                            loadChartJS().then(resolve).catch(reject);
+                        }
+                    }, 100);
+                };
+                
+                script.onerror = () => {
+                    clearTimeout(timeoutId);
+                    console.error(`❌ Chart.js加载失败: ${script.src}`);
+                    script.remove();
+                    currentSourceIndex++;
+                    loadChartJS().then(resolve).catch(reject);
+                };
+                
+                document.head.appendChild(script);
+            });
+        }
+        
+        // 立即开始加载
+        loadChartJS().then(() => {
+            console.log('✅ Chart.js最终加载成功');
+            window.chartJSReady = true;
+            // 触发自定义事件通知页面Chart.js已就绪
+            window.dispatchEvent(new CustomEvent('chartJSReady'));
+        }).catch(error => {
+            console.error('❌ Chart.js最终加载失败:', error);
+            window.chartJSReady = false;
+            window.chartJSError = error.message;
+            // 触发失败事件
+            window.dispatchEvent(new CustomEvent('chartJSFailed', { detail: error.message }));
+        });
+    </script>
+    
+    <script>
+        // 页面加载完成检查和增强的状态监控
+        window.addEventListener('load', function() {
+            console.log('🔍 页面加载完成，最终检查Chart.js状态...');
+            
+            if (typeof Chart !== 'undefined') {
+                console.log('✅ Chart.js最终状态: 已加载');
+                console.log('📊 Chart.js版本:', Chart.version || '未知');
+                console.log('🎯 Chart.js构造函数类型:', typeof Chart);
+                window.chartJSStatus = 'loaded';
+            } else {
+                console.log('❌ Chart.js最终状态: 未加载');
+                window.chartJSStatus = 'failed';
+            }
+            
+            // 检查Canvas支持
+            try {
+                const testCanvas = document.createElement('canvas');
+                const ctx = testCanvas.getContext('2d');
+                if (ctx && typeof ctx.fillRect === 'function') {
+                    console.log('✅ Canvas支持正常');
+                } else {
+                    console.warn('⚠️ Canvas支持异常');
+                }
+            } catch (e) {
+                console.error('❌ Canvas不支持:', e);
+            }
+        });
+        
+        // 监听Chart.js加载事件
+        window.addEventListener('chartJSReady', function() {
+            console.log('🎉 收到Chart.js就绪事件');
+        });
+        
+        window.addEventListener('chartJSFailed', function(event) {
+            console.warn('⚠️ 收到Chart.js失败事件:', event.detail);
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面头部 -->
+        <div class="header">
+            <h1>智能投资回测系统</h1>
+            <div class="system-info">
+                <p>🤖 集成多Agent分析引擎，基于机器学习的量化投资回测平台</p>
+                <div class="system-status">
+                    <span class="status-indicator" id="systemStatus">系统就绪</span>
+                    <span class="version">v2.0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 参数配置区域 -->
+        <div class="config-section">
+            <h2>📝 回测参数配置</h2>
+            
+            <!-- 股票选择 -->
+            <div class="form-group">
+                <label for="stockSelect">股票选择</label>
+                <div class="stock-selector">
+                    <div class="stock-search">
+                        <input type="text" id="companyName" placeholder="输入公司名称，如：贵州茅台" value="贵州茅台" />
+                        <input type="text" id="stockCode" placeholder="输入股票代码，如：sh.600519" value="sh.600519" />
+                    </div>
+                    <div class="quick-select">
+                        <label>💡 快速选择：</label>
+                        <div class="stock-chips" id="stockChips">
+                            <!-- 股票快捷选项将在这里动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 时间范围 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startDate">开始日期</label>
+                    <input type="date" id="startDate" value="2024-01-01" />
+                </div>
+                <div class="form-group">
+                    <label for="endDate">结束日期</label>
+                    <input type="date" id="endDate" value="2024-04-01" />
+                </div>
+            </div>
+
+            <!-- 回测配置 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="initialCapital">初始资金 (元)</label>
+                    <input type="number" id="initialCapital" value="100000" min="10000" step="1000" />
+                </div>
+                <div class="form-group">
+                    <label for="frequency">决策频率</label>
+                    <select id="frequency">
+                        <option value="daily">每日决策 (⚠️耗时较长)</option>
+                        <option value="weekly" selected>每周决策 ⭐推荐快速</option>
+                        <option value="monthly">每月决策 (⚡超快速)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 参数建议提示 -->
+            <div class="tips-section">
+                <h3>⚡ 快速回测建议 (减少等待时间)</h3>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <span class="tip-icon">⏰</span>
+                        <div class="tip-content">
+                            <strong>快速模式</strong>
+                            <p>3个月 + 每周决策 = 12个决策点</p>
+                            <small>预计耗时：5-8分钟</small>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <span class="tip-icon">🚀</span>
+                        <div class="tip-content">
+                            <strong>超快模式</strong>
+                            <p>3个月 + 每月决策 = 3个决策点</p>
+                            <small>预计耗时：2-3分钟</small>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <span class="tip-icon">⚠️</span>
+                        <div class="tip-content">
+                            <strong>避免每日决策</strong>
+                            <p>4个月每日 = 120个决策点</p>
+                            <small>耗时：30-60分钟</small>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <span class="tip-icon">💡</span>
+                        <div class="tip-content">
+                            <strong>推荐配置</strong>
+                            <p>每周决策可获得丰富的交易行为</p>
+                            <small>平衡速度与分析深度</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button type="button" id="startBacktestBtn" onclick="startBacktest()" class="primary-btn">
+                    <span class="btn-icon">🚀</span>
+                    <span class="btn-text">开始回测</span>
+                </button>
+                <button type="button" id="stopBacktestBtn" onclick="stopBacktest()" class="secondary-btn" disabled>
+                    <span class="btn-icon">⏹️</span>
+                    <span class="btn-text">停止回测</span>
+                </button>
+                <button type="button" id="resetBtn" onclick="resetForm()" class="tertiary-btn">
+                    <span class="btn-icon">🔄</span>
+                    <span class="btn-text">重置参数</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 回测进度 -->
+        <div class="progress-section" id="progressSection" style="display: none;">
+            <h2>⏳ 回测进度</h2>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <span class="progress-text" id="progressText">0%</span>
+                </div>
+                <div class="progress-message" id="progressMessage">等待开始...</div>
+            </div>
+        </div>
+
+        <!-- 结果展示区域 -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2>📈 回测结果</h2>
+            
+            <!-- 关键指标 -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">💰</div>
+                    <div class="metric-content">
+                        <h3>总收益</h3>
+                        <div class="metric-value" id="totalProfit">¥0</div>
+                        <div class="metric-change" id="totalReturn">0%</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-content">
+                        <h3>最大回撤</h3>
+                        <div class="metric-value" id="maxDrawdown">0%</div>
+                        <div class="metric-sub">风险控制指标</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">⚡</div>
+                    <div class="metric-content">
+                        <h3>夏普比率</h3>
+                        <div class="metric-value" id="sharpeRatio">0.00</div>
+                        <div class="metric-sub">风险调整收益</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🔄</div>
+                    <div class="metric-content">
+                        <h3>交易次数</h3>
+                        <div class="metric-value" id="totalTrades">0</div>
+                        <div class="metric-sub" id="winningTrades">胜率: 0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表展示 -->
+            <div class="charts-container">
+                <div class="chart-section">
+                    <h3>📈 资产价值走势</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="valueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-section">
+                    <h3>📊 收益分布</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="returnsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交易记录 -->
+            <div class="transactions-section">
+                <h3>📋 交易记录</h3>
+                <div class="table-container">
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>操作</th>
+                                <th>股数</th>
+                                <th>价格</th>
+                                <th>金额</th>
+                                <th>信心度</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 交易记录将在这里动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 下载按钮 -->
+            <div class="download-section">
+                <button type="button" onclick="downloadResults()" class="download-btn">
+                    <span class="btn-icon">📥</span>
+                    <span class="btn-text">下载详细报告</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/backtest_script.js"></script>
+</body>
+</html> 

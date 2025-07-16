@@ -37,15 +37,17 @@ class MultiAgentWorkflow:
     def __init__(self, websocket: WebSocket = None, verbose: bool = True):
         self.websocket = websocket
         self.verbose = verbose
+        
+        # 优化MCP客户端配置 - 使用测试验证的工作配置
         self.client = MultiServerMCPClient({
             "a_share_data_provider": {
-                # "url": "http://165.22.115.184:3000/mcp/",
                 "url": "http://localhost:3000/mcp/",
-                "transport": "streamable_http",
+                "transport": "streamable_http"
             }
         })
         self.tools = None
         self.llm = None
+        self._initialized = False  # 追踪初始化状态
         
         # 初始化agent实例，传入verbose参数
         self.fundamental_agent = FundamentalAgent(verbose=self.verbose)
@@ -66,21 +68,73 @@ class MultiAgentWorkflow:
         else:
             print(f"[{log_type.upper()}] {message}")
     
-    async def initialize(self):
-        """初始化工具和模型"""
+    async def initialize_tools_and_model(self):
+        """初始化工具和模型（带缓存和优化的连接管理）"""
+        if self._initialized:
+            await self.send_log("使用已初始化的连接", "info")
+            return True
+            
         try:
             # 获取工具
             await self.send_log("正在连接 MCP 服务器...", "info")
-            self.tools = await self.client.get_tools()
-            await self.send_log(f"工具加载成功，可用工具数量: {len(self.tools)}", "success")
+            
+            # 优化的连接逻辑：减少重试次数，增加每次重试间隔
+            max_retries = 2
+            base_delay = 3
+            
+            for attempt in range(max_retries):
+                try:
+                    # 确保每次尝试都是独立的
+                    await self.send_log(f"尝试连接 MCP 服务器 ({attempt + 1}/{max_retries})", "info")
+                    
+                    # 设置适中的超时时间，确保MCP连接稳定
+                    self.tools = await asyncio.wait_for(
+                        self.client.get_tools(), 
+                        timeout=30.0  # 增加超时时间
+                    )
+                    
+                    await self.send_log(f"✅ MCP连接成功！可用工具数量: {len(self.tools)}", "success")
+                    break
+                    
+                except asyncio.TimeoutError:
+                    if attempt < max_retries - 1:
+                        delay = base_delay * (attempt + 1)
+                        await self.send_log(f"MCP连接超时，{delay}秒后重试... ({attempt + 1}/{max_retries})", "warning")
+                        await asyncio.sleep(delay)
+                    else:
+                        raise Exception("MCP服务器连接超时，请检查服务器状态")
+                        
+                except Exception as e:
+                    error_msg = str(e)
+                    if "session" in error_msg.lower() or "missing session id" in error_msg.lower():
+                        # 会话相关错误，稍等后重试
+                        if attempt < max_retries - 1:
+                            delay = base_delay * (attempt + 1)
+                            await self.send_log(f"MCP会话错误，{delay}秒后重试... ({attempt + 1}/{max_retries})", "warning")
+                            await asyncio.sleep(delay)
+                        else:
+                            raise Exception("MCP服务器会话管理错误，请重启MCP服务器")
+                    else:
+                        if attempt < max_retries - 1:
+                            delay = base_delay * (attempt + 1)
+                            await self.send_log(f"MCP连接失败，{delay}秒后重试... ({attempt + 1}/{max_retries}): {error_msg}", "warning")
+                            await asyncio.sleep(delay)
+                        else:
+                            raise Exception(f"MCP连接失败: {error_msg}")
             
             # 初始化 Gemini 模型
             await self.send_log("正在初始化 Gemini 模型...", "info")
             if not os.getenv("GOOGLE_API_KEY"):
                 raise Exception("GOOGLE_API_KEY 未设置")
             
-            self.llm = ChatGoogleGenerativeAI(model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"))
-            await self.send_log("Gemini 模型初始化成功", "success")
+            self.llm = ChatGoogleGenerativeAI(
+                model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
+                timeout=60,  # 设置模型调用超时
+                max_retries=2,  # 设置模型重试次数
+                temperature=0.1  # 降低随机性
+            )
+            
+            await self.send_log("✅ 系统初始化完成", "success")
             
             # 为所有agent设置LLM、工具和WebSocket
             for agent in [self.fundamental_agent, self.technical_agent, 
@@ -89,11 +143,22 @@ class MultiAgentWorkflow:
                 agent.set_tools(self.tools)
                 agent.set_websocket(self.websocket)
             
+            await self.send_log("Gemini 模型和Agent配置完成", "success")
+            self._initialized = True
             return True
             
         except Exception as e:
-            await self.send_log(f"初始化失败: {e}", "error")
+            await self.send_log(f"❌ 初始化失败: {e}", "error")
             return False
+    
+    async def cleanup(self):
+        """清理资源"""
+        try:
+            if hasattr(self.client, 'close'):
+                await self.client.close()
+            await self.send_log("MCP连接已清理", "info")
+        except Exception as e:
+            await self.send_log(f"清理资源时出错: {e}", "warning")
     
     async def router_node(self, state: MultiAgentState) -> MultiAgentState:
         """路由节点，用于启动并行分析"""
@@ -144,35 +209,27 @@ class MultiAgentWorkflow:
     
     async def investment_agent_node(self, state: MultiAgentState) -> MultiAgentState:
         """投资决策节点"""
-        await self.send_log("💰 开始生成投资决策指令...", "info")
+        await self.send_log("💰 开始生成投资决策...", "info")
         
         try:
-            # 使用投资决策agent进行分析
+            # 使用投资agent进行分析
             result_state = await self.investment_agent.analyze(state)
             
-            # 将投资决策结果整合到最终报告
-            summary_analysis = result_state.get("summary_analysis", "")
-            investment_decision = result_state.get("investment_decision", {})
-            
-            # 获取投资决策的原始文本
-            investment_text = ""
-            if isinstance(investment_decision, dict):
-                investment_text = investment_decision.get("raw_decision", "")
-            else:
-                investment_text = str(investment_decision)
-            
-            # 组合最终报告
-            final_report = f"{summary_analysis}\n\n---\n\n{investment_text}"
-            result_state["final_report"] = final_report
-            
-            await self.send_log("✅ 投资决策指令生成完成", "success")
+            await self.send_log("✅ 投资决策生成完成", "success")
             return result_state
             
         except Exception as e:
-            await self.send_log(f"❌ 投资决策指令生成失败: {e}", "error")
-            state["investment_decision"] = f"投资决策指令生成失败: {e}"
-            # 如果投资决策失败，使用summary作为最终报告
-            state["final_report"] = state.get("summary_analysis", "分析失败")
+            await self.send_log(f"❌ 投资决策生成失败: {e}", "error")
+            state["investment_decision"] = {
+                "action": "HOLD",
+                "confidence": 0.0,
+                "target_price": None,
+                "stop_loss": None,
+                "position_size": 0.0,
+                "holding_period": "medium",
+                "risk_level": "medium",
+                "reasons": [f"投资决策生成失败: {e}"]
+            }
             return state
     
     def create_workflow(self):
@@ -197,100 +254,60 @@ class MultiAgentWorkflow:
         return workflow.compile()
     
     async def run_analysis(self, company_name: str, stock_code: str):
-        """运行完整的分析流程"""
-        # 初始化
-        if not await self.initialize():
-            return None
-        
-        # 准备状态
-        current_time = datetime.datetime.now()
-        initial_state = MultiAgentState(
-            company_name=company_name,
-            stock_code=stock_code,
-            current_time_info=current_time.strftime("%Y年%m月%d日 %H:%M:%S"),
-            current_date=current_time.strftime("%Y-%m-%d"),
-            current_price=0.0,
-            historical_prices=[],
-            portfolio_state={},
-            fundamental_analysis="",
-            technical_analysis="",
-            valuation_analysis="",
-            summary_analysis="",
-            investment_decision="",
-            final_report="",
-            messages=[]
-        )
-        
-        await self.send_log(f"🚀 开始分析 {company_name}({stock_code})", "info")
-        
-        # 创建并运行工作流
-        app = self.create_workflow()
-        
-        try:
-            # 运行工作流
-            result = await app.ainvoke(initial_state)
-            
-            await self.send_log("🎉 所有分析完成！", "success")
-            
-            # 返回最终报告
-            return result.get("final_report", "分析完成，但未能生成最终报告")
-            
-        except Exception as e:
-            await self.send_log(f"❌ 工作流执行失败: {e}", "error")
-            return f"分析过程中发生错误: {e}"
-    
-    async def run(self, input_data: dict) -> dict:
         """
-        运行工作流的简化接口
+        执行完整的分析流程
         
         Args:
-            input_data: 包含stock_code, company_name等的输入数据
+            company_name: 公司名称
+            stock_code: 股票代码
             
         Returns:
-            包含所有分析结果的字典
+            分析结果字典
         """
-        # 准备状态
-        current_time = datetime.datetime.now()
-        initial_state = MultiAgentState(
-            company_name=input_data.get("company_name", ""),
-            stock_code=input_data.get("stock_code", ""),
-            current_time_info=input_data.get("current_time_info", current_time.strftime("%Y年%m月%d日 %H:%M:%S")),
-            current_date=input_data.get("current_date", current_time.strftime("%Y-%m-%d")),
-            current_price=input_data.get("current_price", 0.0),
-            historical_prices=input_data.get("historical_prices", []),
-            portfolio_state=input_data.get("portfolio_state", {}),
-            fundamental_analysis="",
-            technical_analysis="",
-            valuation_analysis="",
-            summary_analysis="",
-            investment_decision="",
-            final_report="",
-            messages=[]
-        )
+        await self.send_log(f"🎯 开始完整分析: {company_name} ({stock_code})", "info")
         
-        await self.send_log(f"🚀 开始分析 {input_data.get('company_name', '')}({input_data.get('stock_code', '')})", "info")
-        
-        # 初始化工具和模型
-        if not await self.initialize():
-            return {
-                "error": "初始化失败",
-                "investment_decision": {
-                    "action": "HOLD",
-                    "confidence": 0.0,
-                    "target_price": None,
-                    "stop_loss": None,
-                    "position_size": 0.0,
-                    "holding_period": "medium",
-                    "risk_level": "medium",
-                    "reasons": ["初始化失败"]
-                }
-            }
-        
-        # 创建并运行工作流
-        app = self.create_workflow()
+        # 准备初始状态
+        initial_state = {
+            "company_name": company_name,
+            "stock_code": stock_code,
+            "current_time_info": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "current_date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "current_price": 0.0,
+            "historical_prices": [],
+            "portfolio_state": {},
+            "fundamental_analysis": "",
+            "technical_analysis": "",
+            "valuation_analysis": "",
+            "summary_analysis": "",
+            "investment_decision": "",
+            "final_report": "",
+            "messages": []
+        }
         
         try:
+            # 初始化工具和模型
+            await self.send_log("📡 正在初始化分析系统...", "info")
+            if not await self.initialize_tools_and_model():
+                return {
+                    "error": "初始化失败",
+                    "investment_decision": {
+                        "action": "HOLD",
+                        "confidence": 0.0,
+                        "target_price": None,
+                        "stop_loss": None,
+                        "position_size": 0.0,
+                        "holding_period": "medium",
+                        "risk_level": "medium",
+                        "reasons": ["初始化失败"]
+                    }
+                }
+            
+            # 创建并运行工作流
+            await self.send_log("🔧 构建分析工作流...", "info")
+            app = self.create_workflow()
+            
             # 运行工作流
+            await self.send_log("🚀 开始执行分析工作流（无超时限制）...", "info")
             result = await app.ainvoke(initial_state)
             
             await self.send_log("🎉 所有分析完成！", "success")
@@ -299,9 +316,10 @@ class MultiAgentWorkflow:
             return result
             
         except Exception as e:
-            await self.send_log(f"❌ 工作流执行失败: {e}", "error")
+            error_msg = f"分析过程中发生错误: {e}"
+            await self.send_log(f"❌ {error_msg}", "error")
             return {
-                "error": f"分析过程中发生错误: {e}",
+                "error": error_msg,
                 "investment_decision": {
                     "action": "HOLD",
                     "confidence": 0.0,
@@ -313,6 +331,122 @@ class MultiAgentWorkflow:
                     "reasons": [f"分析失败: {str(e)}"]
                 }
             }
+        finally:
+            # 清理资源（可选，避免频繁清理影响性能）
+            # await self.cleanup()
+            pass
+    
+    async def run(self, input_data: dict):
+        """
+        简化的运行接口，用于回测系统调用
+        
+        Args:
+            input_data: 包含分析所需数据的字典
+            
+        Returns:
+            包含投资决策的结果字典
+        """
+        try:
+            company_name = input_data.get("company_name", "未知公司")
+            stock_code = input_data.get("stock_code", "unknown")
+            
+            await self.send_log(f"📊 开始单次分析: {company_name} ({stock_code})", "info")
+            
+            # 准备状态
+            state = {
+                "company_name": company_name,
+                "stock_code": stock_code,
+                "current_time_info": input_data.get("current_time_info", ""),
+                "current_date": input_data.get("current_date", ""),
+                "current_price": input_data.get("current_price", 0.0),
+                "historical_prices": input_data.get("historical_prices", []),
+                "portfolio_state": input_data.get("portfolio_state", {}),
+                "fundamental_analysis": "",
+                "technical_analysis": "",
+                "valuation_analysis": "",
+                "summary_analysis": "",
+                "investment_decision": "",
+                "final_report": "",
+                "messages": []
+            }
+            
+            # 确保已初始化
+            if not await self.initialize_tools_and_model():
+                raise Exception("系统初始化失败")
+            
+            # 创建简化的工作流（只到投资决策）
+            app = self.create_investment_workflow()
+            
+            await self.send_log(f"🚀 开始单次分析（无超时限制）", "info")
+            
+            result = await app.ainvoke(state)
+            
+            # 提取投资决策
+            investment_decision = result.get('investment_decision', {})
+            
+            # 如果是字符串，尝试解析
+            if isinstance(investment_decision, str):
+                try:
+                    import json
+                    investment_decision = json.loads(investment_decision)
+                except:
+                    # 解析失败时提供默认决策
+                    investment_decision = {
+                        "action": "HOLD",
+                        "confidence": 0.5,
+                        "target_price": None,
+                        "stop_loss": None,
+                        "position_size": 0.0,
+                        "holding_period": "medium",
+                        "risk_level": "medium",
+                        "reasons": ["决策解析失败"]
+                    }
+            
+            await self.send_log(f"✅ 投资决策生成完成: {investment_decision.get('action', 'HOLD')}", "success")
+            
+            return {
+                "investment_decision": investment_decision,
+                "fundamental_analysis": result.get('fundamental_analysis', ''),
+                "technical_analysis": result.get('technical_analysis', ''),
+                "valuation_analysis": result.get('valuation_analysis', ''),
+                "summary_analysis": result.get('summary_analysis', '')
+            }
+            
+        except Exception as e:
+            await self.send_log(f"❌ 单次分析失败: {e}", "error")
+            return {
+                "investment_decision": {
+                    "action": "HOLD",
+                    "confidence": 0.5,
+                    "target_price": None,
+                    "stop_loss": None,
+                    "position_size": 0.0,
+                    "holding_period": "medium",
+                    "risk_level": "medium",
+                    "reasons": [f"分析失败: {str(e)}"]
+                }
+            }
+    
+    def create_investment_workflow(self):
+        """创建简化的投资决策工作流（用于回测）"""
+        # 创建状态图
+        workflow = StateGraph(MultiAgentState)
+        
+        # 添加节点
+        workflow.add_node("router", self.router_node)
+        workflow.add_node("parallel_analysis", self.parallel_analysis)
+        workflow.add_node("investment_node", self.investment_agent_node)
+        
+        # 设置入口点
+        workflow.set_entry_point("router")
+        
+        # 添加边
+        workflow.add_edge("router", "parallel_analysis")
+        workflow.add_edge("parallel_analysis", "investment_node")
+        workflow.add_edge("investment_node", END)
+        
+        # 编译工作流
+        return workflow.compile()
 
 # 测试函数
 async def test_multi_agent():

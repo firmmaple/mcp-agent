@@ -213,25 +213,53 @@ class InvestmentAgent(BaseAgent):
             decision["position_size"] = min(0.4, decision["confidence"] * 0.6)  # 根据信心度调整仓位
             decision["reasons"].append("当前空仓，基于高信心度买入")
         
-        # 如果当前持股且浮动盈亏不佳，考虑止损
-        elif current_shares > 0 and unrealized_pnl_percent < -5:
-            if decision["confidence"] < 0.4:
+        # 如果当前持股且浮动盈亏不佳，考虑止损（降低止损阈值）
+        elif current_shares > 0 and unrealized_pnl_percent < -3:
+            if decision["confidence"] < 0.5:
                 decision["action"] = "SELL"
-                decision["position_size"] = 0.5  # 部分止损
-                decision["reasons"].append("浮动亏损过大，止损减仓")
+                decision["position_size"] = 0.4  # 部分止损
+                decision["reasons"].append("浮动亏损较大，止损减仓")
         
-        # 如果当前持股且盈利较好，考虑部分获利了结
-        elif current_shares > 0 and unrealized_pnl_percent > 15:
-            if decision["confidence"] < 0.7:
+        # 如果当前持股且盈利较好，考虑部分获利了结（降低获利阈值）
+        elif current_shares > 0 and unrealized_pnl_percent > 8:
+            if decision["confidence"] < 0.6:
                 decision["action"] = "SELL"
                 decision["position_size"] = 0.3  # 部分获利
-                decision["reasons"].append("浮动盈利较好，部分获利了结")
+                decision["reasons"].append("浮动盈利良好，部分获利了结")
+        
+        # 如果持股比例过高，考虑减仓平衡风险
+        elif current_shares > 0 and cash_ratio < 0.2:
+            if decision["confidence"] < 0.7:
+                decision["action"] = "SELL"
+                decision["position_size"] = 0.25  # 小幅减仓
+                decision["reasons"].append("持股比例过高，适度减仓平衡风险")
         
         # 如果现金比例过高且分析积极，积极买入
         elif cash_ratio > 0.8 and decision["confidence"] > 0.7:
             decision["action"] = "BUY"
             decision["position_size"] = min(0.5, decision["confidence"] * 0.7)
             decision["reasons"].append("现金比例过高，积极买入")
+        
+        # 增加基于分析转向的卖出逻辑
+        elif current_shares > 0:
+            # 检查是否有明显的分析转向信号
+            if decision["confidence"] < 0.4:
+                decision["action"] = "SELL"
+                decision["position_size"] = 0.3
+                decision["reasons"].append("分析信心度下降，谨慎减仓")
+            elif decision["confidence"] < 0.5 and cash_ratio < 0.3:
+                decision["action"] = "SELL"
+                decision["position_size"] = 0.2
+                decision["reasons"].append("信心度偏低且现金不足，小幅减仓")
+        
+        # 基于交易次数的多样化逻辑（避免总是买入）
+        total_trades = portfolio_state.get('total_trades', 0)
+        if total_trades > 0 and current_shares > 0:
+            # 如果已经有一定交易次数，增加卖出概率
+            if total_trades % 3 == 0 and decision["confidence"] < 0.65:
+                decision["action"] = "SELL"
+                decision["position_size"] = 0.25
+                decision["reasons"].append("基于交易策略多样化，适度减仓")
         
         return decision
     

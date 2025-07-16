@@ -32,6 +32,10 @@ class BacktestSystem:
         self.daily_values = []  # 每日资产价值
         self.workflow = MultiAgentWorkflow(verbose=False)
         
+        # 添加缓存机制
+        self.price_cache = {}  # 缓存股票价格数据
+        self.analysis_cache = {}  # 缓存分析结果
+        
         # 初始化baostock
         lg = bs.login()
         if lg.error_code != '0':
@@ -46,7 +50,7 @@ class BacktestSystem:
     
     def get_stock_price(self, stock_code: str, date: str) -> Optional[float]:
         """
-        获取指定日期的股票价格
+        获取指定日期的股票价格（带缓存）
         
         Args:
             stock_code: 股票代码
@@ -55,12 +59,20 @@ class BacktestSystem:
         Returns:
             股票价格，如果获取失败返回None
         """
+        # 检查缓存
+        cache_key = f"{stock_code}_{date}"
+        if cache_key in self.price_cache:
+            print(f"💾 使用缓存价格: {date} = {self.price_cache[cache_key]:.2f}")
+            return self.price_cache[cache_key]
+        
         try:
             # 确保baostock已登录
             lg = bs.login()
             if lg.error_code != '0':
                 print(f"重新登录baostock失败: {lg.error_msg}")
                 return None
+            
+            print(f"📡 获取股票价格: {stock_code} @ {date}")
             
             # 获取前后几天的数据，确保能获取到价格
             start_date = (datetime.strptime(date, '%Y-%m-%d') - timedelta(days=5)).strftime('%Y-%m-%d')
@@ -76,8 +88,9 @@ class BacktestSystem:
             )
             
             data_list = []
-            while rs.error_code == '0' and rs.next():
-                data_list.append(rs.get_row_data())
+            if rs and rs.error_code == '0':
+                while rs.next():
+                    data_list.append(rs.get_row_data())
             
             if not data_list:
                 return None
@@ -94,6 +107,11 @@ class BacktestSystem:
                     min_diff = diff
                     closest_price = float(row[1])
             
+            # 缓存结果
+            if closest_price:
+                self.price_cache[cache_key] = closest_price
+                print(f"✅ 价格获取成功: {closest_price:.2f}")
+            
             return closest_price
             
         except Exception as e:
@@ -102,26 +120,25 @@ class BacktestSystem:
     
     def get_historical_prices(self, stock_code: str, end_date: str, days: int = 30) -> List[float]:
         """
-        获取历史价格数据
+        获取历史价格数据（带缓存优化）
         
         Args:
             stock_code: 股票代码
             end_date: 结束日期
-            days: 获取天数
+            days: 历史天数
             
         Returns:
-            历史价格列表
+            价格列表
         """
+        cache_key = f"hist_{stock_code}_{end_date}_{days}"
+        if cache_key in self.price_cache:
+            print(f"💾 使用缓存历史数据: {len(self.price_cache[cache_key])} 个价格点")
+            return self.price_cache[cache_key]
+        
         try:
-            # 确保baostock已登录
-            lg = bs.login()
-            if lg.error_code != '0':
-                return []
+            print(f"📡 获取历史价格数据: {stock_code} 最近 {days} 天")
             
-            # 计算开始日期
-            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
-            start_dt = end_dt - timedelta(days=days)
-            start_date = start_dt.strftime('%Y-%m-%d')
+            start_date = (datetime.strptime(end_date, '%Y-%m-%d') - timedelta(days=days+10)).strftime('%Y-%m-%d')
             
             rs = bs.query_history_k_data_plus(
                 stock_code,
@@ -133,12 +150,22 @@ class BacktestSystem:
             )
             
             prices = []
-            while rs.error_code == '0' and rs.next():
-                row = rs.get_row_data()
-                if row[1]:  # 确保有收盘价
-                    prices.append(float(row[1]))
+            if rs and rs.error_code == '0':
+                while rs.next():
+                    try:
+                        close_price = float(rs.get_row_data()[1])
+                        prices.append(close_price)
+                    except (ValueError, IndexError):
+                        continue
             
-            return prices[-10:] if prices else []  # 返回最近10个价格
+            # 只保留最近的天数
+            if len(prices) > days:
+                prices = prices[-days:]
+            
+            # 缓存结果
+            self.price_cache[cache_key] = prices
+            print(f"✅ 历史数据获取成功: {len(prices)} 个价格点")
+            return prices
             
         except Exception as e:
             print(f"获取历史价格失败: {e}")
@@ -206,6 +233,12 @@ class BacktestSystem:
             JSON格式的投资决策
         """
         try:
+            # 检查缓存
+            cache_key = f"decision_{stock_code}_{date}"
+            if cache_key in self.analysis_cache:
+                print(f"💾 使用缓存投资决策: {date} - {company_name} ({stock_code})")
+                return self.analysis_cache[cache_key]
+
             # 获取历史价格数据
             historical_prices = self.get_historical_prices(stock_code, date, days=30)
             
@@ -234,19 +267,21 @@ class BacktestSystem:
             
             print(f"💡 投资决策: {decision.get('action', 'HOLD')} | 信心度: {decision.get('confidence', 0):.2f} | 仓位: {decision.get('position_size', 0):.1%}")
             
+            # 缓存结果
+            self.analysis_cache[cache_key] = decision
             return decision
             
         except Exception as e:
             print(f"获取投资决策失败: {e}")
             return {
                 "action": "HOLD",
-                "confidence": 0.0,
+                "confidence": 0.5,
                 "target_price": None,
                 "stop_loss": None,
                 "position_size": 0.0,
                 "holding_period": "medium",
                 "risk_level": "medium",
-                "reasons": [f"分析失败: {str(e)}"]
+                "reasons": [f"分析失败: {e}"]
             }
     
     def execute_decision(self, stock_code: str, decision: Dict[str, Any], current_price: float, date: str):
@@ -340,7 +375,8 @@ class BacktestSystem:
     
     async def run_backtest(self, stock_code: str, company_name: str, 
                           start_date: str, end_date: str, 
-                          frequency: str = "weekly") -> Dict[str, Any]:
+                          frequency: str = "weekly", 
+                          progress_callback=None) -> Dict[str, Any]:
         """
         运行回测
         
@@ -349,7 +385,8 @@ class BacktestSystem:
             company_name: 公司名称
             start_date: 开始日期
             end_date: 结束日期
-            frequency: 决策频率 ("daily" 或 "weekly")
+            frequency: 决策频率 ("daily" 或 "weekly" 或 "monthly")
+            progress_callback: 进度回调函数
             
         Returns:
             回测结果
@@ -362,8 +399,35 @@ class BacktestSystem:
         
         # 生成决策日期列表
         decision_dates = self.generate_decision_dates(start_date, end_date, frequency)
+        total_dates = len(decision_dates)
         
-        for date in decision_dates:
+        print(f"📊 将进行 {total_dates} 次决策分析")
+        
+        if progress_callback:
+            progress_callback(10, f"回测初始化完成，共需分析 {total_dates} 个决策点")
+        
+        # 预计每个决策点的耗时（秒）
+        estimated_time_per_decision = {
+            "daily": 30,    # 每日决策约30秒
+            "weekly": 25,   # 每周决策约25秒
+            "monthly": 20   # 每月决策约20秒
+        }
+        
+        estimated_total_minutes = (total_dates * estimated_time_per_decision.get(frequency, 25)) / 60
+        print(f"⏱️ 预计总耗时: {estimated_total_minutes:.1f} 分钟")
+        
+        if progress_callback:
+            progress_callback(15, f"预计耗时 {estimated_total_minutes:.1f} 分钟，正在开始分析...")
+        
+        for i, date in enumerate(decision_dates):
+            # 计算进度
+            progress = 15 + int((i / total_dates) * 70)  # 15-85%的进度用于分析
+            
+            if progress_callback:
+                progress_callback(progress, f"正在分析第 {i+1}/{total_dates} 个决策点: {date}")
+            
+            print(f"\n📈 [{i+1}/{total_dates}] 决策点: {date}")
+            
             # 获取当前价格
             current_price = self.get_stock_price(stock_code, date)
             if not current_price:
@@ -388,8 +452,16 @@ class BacktestSystem:
             print(f"📈 投资组合价值: {portfolio_value:,.2f} | 现金: {self.current_capital:,.2f}")
             print("-" * 30)
         
+        if progress_callback:
+            progress_callback(90, "正在计算回测结果...")
+        
         # 计算回测结果
-        return self.calculate_performance()
+        results = self.calculate_performance()
+        
+        if progress_callback:
+            progress_callback(100, "回测完成！")
+        
+        return results
     
     def generate_decision_dates(self, start_date: str, end_date: str, frequency: str) -> List[str]:
         """
@@ -440,19 +512,45 @@ class BacktestSystem:
         except Exception as e:
             return {"error": f"计算收益时出错: {e}"}
         
+        # 计算交易统计
+        buy_trades = [t for t in self.transactions if t['action'] == 'BUY']
+        sell_trades = [t for t in self.transactions if t['action'] == 'SELL']
+        
+        # 计算盈利交易数量和胜率
+        profitable_trades = 0
+        total_completed_trades = 0
+        
+        if buy_trades and sell_trades:
+            # 将买卖交易配对计算盈亏
+            for sell_trade in sell_trades:
+                # 找到对应的买入交易（简化为价格比较）
+                corresponding_buys = [b for b in buy_trades if b['date'] <= sell_trade['date']]
+                if corresponding_buys:
+                    avg_buy_price = sum(b['price'] for b in corresponding_buys) / len(corresponding_buys)
+                    if sell_trade['price'] > avg_buy_price:
+                        profitable_trades += 1
+                    total_completed_trades += 1
+        
+        # 计算胜率 - 只有完成买卖对的交易才计算胜率
+        win_rate = (profitable_trades / total_completed_trades) if total_completed_trades > 0 else 0.0
+        
         # 计算各种指标
         performance = {
             'initial_capital': self.initial_capital,
             'final_value': final_value,
             'total_return': total_return,
             'total_profit': final_value - self.initial_capital,
-            'max_value': max(values),
-            'min_value': min(values),
-            'volatility': np.std(returns) if len(returns) > 1 else 0,
-            'sharpe_ratio': np.mean(returns) / np.std(returns) if len(returns) > 1 and np.std(returns) > 0 else 0,
+            'max_value': max(values) if values else self.initial_capital,
+            'min_value': min(values) if values else self.initial_capital,
+            'volatility': float(np.std(returns)) if len(returns) > 1 else 0.0,
+            'sharpe_ratio': float(np.mean(returns) / np.std(returns)) if len(returns) > 1 and np.std(returns) > 0 else 0.0,
             'max_drawdown': self.calculate_max_drawdown(values),
             'total_trades': len(self.transactions),
-            'winning_trades': len([t for t in self.transactions if t['action'] == 'SELL']),
+            'buy_trades': len(buy_trades),
+            'sell_trades': len(sell_trades),
+            'profitable_trades': profitable_trades,
+            'win_rate': win_rate,
+            'winning_trades': profitable_trades,  # 保持兼容性
             'daily_values': self.daily_values,
             'transactions': self.transactions
         }

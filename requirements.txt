@@ -1,6 +1,8 @@
 annotated-types==0.7.0
 anyio==4.9.0
 baostock==0.8.9
+Flask==3.0.0
+Flask-CORS==4.0.0
 cachetools==5.5.2
 certifi==2025.4.26
 charset-normalizer==3.4.2
@@ -78,3 +80,7 @@ websockets==15.0.1
 wheel==0.45.1
 xxhash==3.5.0
 zstandard==0.23.0
+
+# 诊断系统依赖
+aiohttp==3.9.1
+psutil==5.9.8
