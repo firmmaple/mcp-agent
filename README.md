@@ -68,7 +68,7 @@ API服务层 (FastAPI实时分析 + Flask回测服务)
 ### 1. 环境准备
 ```bash
 # 克隆项目
-git clone --single-branch -b backtest [<repository-url>](https://github.com/firmmaple/mcp-agent.git)
+git clone --single-branch -b backtest https://github.com/firmmaple/mcp-agent.git
 cd mcp-agent
 ```
 
