@@ -1,0 +1,366 @@
+{
+  "initial_capital": 100000.0,
+  "final_value": 107981.29349151244,
+  "total_return": 0.07981293491512435,
+  "total_profit": 7981.293491512435,
+  "max_value": 108730.54338967815,
+  "min_value": 98868.01658941206,
+  "volatility": 0.013731013988353954,
+  "sharpe_ratio": 0.2614864443483547,
+  "max_drawdown": 0.04960328002903202,
+  "total_trades": 23,
+  "buy_trades": 12,
+  "sell_trades": 11,
+  "profitable_trades": 9,
+  "win_rate": 0.8181818181818182,
+  "winning_trades": 9,
+  "daily_values": [
+    {
+      "date": "2025-01-16",
+      "portfolio_value": 100000.0,
+      "cash": 60000.0,
+      "stock_value": 40000.0
+    },
+    {
+      "date": "2025-01-23",
+      "portfolio_value": 98868.01658941206,
+      "cash": 48000.0,
+      "stock_value": 50868.01658941206
+    },
+    {
+      "date": "2025-01-30",
+      "portfolio_value": 99915.26172130555,
+      "cash": 38400.0,
+      "stock_value": 61515.26172130555
+    },
+    {
+      "date": "2025-02-06",
+      "portfolio_value": 99234.28096424314,
+      "cash": 30720.0,
+      "stock_value": 68514.28096424314
+    },
+    {
+      "date": "2025-02-13",
+      "portfolio_value": 101807.82733877067,
+      "cash": 24576.0,
+      "stock_value": 77231.82733877067
+    },
+    {
+      "date": "2025-03-06",
+      "portfolio_value": 104122.37502933561,
+      "cash": 19660.8,
+      "stock_value": 84461.57502933561
+    },
+    {
+      "date": "2025-03-13",
+      "portfolio_value": 105852.50040237601,
+      "cash": 15728.64,
+      "stock_value": 90123.86040237601
+    },
+    {
+      "date": "2025-03-20",
+      "portfolio_value": 108730.54338967815,
+      "cash": 34329.02067793563,
+      "stock_value": 74401.52271174252
+    },
+    {
+      "date": "2025-03-27",
+      "portfolio_value": 105474.24332404486,
+      "cash": 55672.5874717684,
+      "stock_value": 49801.65585227646
+    },
+    {
+      "date": "2025-04-03",
+      "portfolio_value": 104772.00083514313,
+      "cash": 80222.29415345576,
+      "stock_value": 24549.70668168737
+    },
+    {
+      "date": "2025-04-10",
+      "portfolio_value": 103879.80750907946,
+      "cash": 103879.80750907946,
+      "stock_value": 0.0
+    },
+    {
+      "date": "2025-04-24",
+      "portfolio_value": 103879.80750907944,
+      "cash": 88297.83638271753,
+      "stock_value": 15581.97112636191
+    },
+    {
+      "date": "2025-05-01",
+      "portfolio_value": 103337.15179821113,
+      "cash": 103337.15179821113,
+      "stock_value": 0.0
+    },
+    {
+      "date": "2025-05-08",
+      "portfolio_value": 103337.15179821113,
+      "cash": 62002.291078926675,
+      "stock_value": 41334.86071928445
+    },
+    {
+      "date": "2025-05-15",
+      "portfolio_value": 105384.57947869904,
+      "cash": 83693.43527881286,
+      "stock_value": 21691.144199886185
+    },
+    {
+      "date": "2025-05-22",
+      "portfolio_value": 105186.59708506695,
+      "cash": 105186.59708506695,
+      "stock_value": 0.0
+    },
+    {
+      "date": "2025-05-29",
+      "portfolio_value": 105186.59708506695,
+      "cash": 63111.95825104017,
+      "stock_value": 42074.63883402679
+    },
+    {
+      "date": "2025-06-05",
+      "portfolio_value": 106057.70761993292,
+      "cash": 84584.83293548654,
+      "stock_value": 21472.874684446375
+    },
+    {
+      "date": "2025-06-12",
+      "portfolio_value": 106473.90487548,
+      "cash": 106473.90487548,
+      "stock_value": 0.0
+    },
+    {
+      "date": "2025-06-19",
+      "portfolio_value": 106473.90487548,
+      "cash": 63884.342925288,
+      "stock_value": 42589.561950192
+    },
+    {
+      "date": "2025-06-26",
+      "portfolio_value": 108573.98189472024,
+      "cash": 86229.16241000412,
+      "stock_value": 22344.81948471612
+    },
+    {
+      "date": "2025-07-03",
+      "portfolio_value": 107981.29349151244,
+      "cash": 107981.29349151244,
+      "stock_value": 0.0
+    },
+    {
+      "date": "2025-07-10",
+      "portfolio_value": 107981.29349151244,
+      "cash": 64788.77609490746,
+      "stock_value": 43192.51739660498
+    }
+  ],
+  "transactions": [
+    {
+      "date": "2025-01-16",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 975.8477677482313,
+      "price": 40.99,
+      "amount": 40000.0,
+      "confidence": 0.75
+    },
+    {
+      "date": "2025-01-23",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 301.28044187798145,
+      "price": 39.83,
+      "amount": 12000.0,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-01-30",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 236.16236162361625,
+      "price": 40.65,
+      "amount": 9600.0,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-02-06",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 191.04477611940297,
+      "price": 40.2,
+      "amount": 7680.0,
+      "confidence": 0.65
+    },
+    {
+      "date": "2025-02-13",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 147.30280508271397,
+      "price": 41.71,
+      "amount": 6144.0,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-03-06",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 114.41340782122907,
+      "price": 42.96,
+      "amount": 4915.200000000001,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-03-13",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 89.6934306569343,
+      "price": 43.84,
+      "amount": 3932.16,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-03-20",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 411.1489981860219,
+      "price": 45.24,
+      "amount": 18600.38067793563,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-03-27",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 493.37879782322625,
+      "price": 43.26,
+      "amount": 21343.566793832768,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-04-03",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 575.6085974604307,
+      "price": 42.65,
+      "amount": 24549.70668168737,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-04-10",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 575.6085974604307,
+      "price": 41.1,
+      "amount": 23657.5133556237,
+      "confidence": 0.8
+    },
+    {
+      "date": "2025-04-24",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 369.15354480838465,
+      "price": 42.21,
+      "amount": 15581.971126361917,
+      "confidence": 0.6
+    },
+    {
+      "date": "2025-05-01",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 369.15354480838465,
+      "price": 40.74,
+      "amount": 15039.315415493591,
+      "confidence": 0.8
+    },
+    {
+      "date": "2025-05-08",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 965.7677738150574,
+      "price": 42.8,
+      "amount": 41334.86071928445,
+      "confidence": 0.7
+    },
+    {
+      "date": "2025-05-15",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 482.8838869075287,
+      "price": 44.92,
+      "amount": 21691.14419988619,
+      "confidence": 0.8
+    },
+    {
+      "date": "2025-05-22",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 482.8838869075287,
+      "price": 44.51,
+      "amount": 21493.161806254102,
+      "confidence": 0.8
+    },
+    {
+      "date": "2025-05-29",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 967.9005942955323,
+      "price": 43.47,
+      "amount": 42074.63883402679,
+      "confidence": 0.75
+    },
+    {
+      "date": "2025-06-05",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 483.95029714776615,
+      "price": 44.37,
+      "amount": 21472.874684446382,
+      "confidence": 0.8
+    },
+    {
+      "date": "2025-06-12",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 483.95029714776615,
+      "price": 45.23,
+      "amount": 21889.07193999346,
+      "confidence": 0.8
+    },
+    {
+      "date": "2025-06-19",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 933.3675641067719,
+      "price": 45.63,
+      "amount": 42589.561950192,
+      "confidence": 0.8
+    },
+    {
+      "date": "2025-06-26",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 466.6837820533859,
+      "price": 47.88,
+      "amount": 22344.819484716118,
+      "confidence": 0.8
+    },
+    {
+      "date": "2025-07-03",
+      "stock_code": "sh.600036",
+      "action": "SELL",
+      "shares": 466.6837820533859,
+      "price": 46.61,
+      "amount": 21752.131081508316,
+      "confidence": 0.9
+    },
+    {
+      "date": "2025-07-10",
+      "stock_code": "sh.600036",
+      "action": "BUY",
+      "shares": 895.3672760490252,
+      "price": 48.24,
+      "amount": 43192.51739660498,
+      "confidence": 0.7
+    }
+  ]
+}

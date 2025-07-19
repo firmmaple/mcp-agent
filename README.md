@@ -17,7 +17,7 @@
 
 ### 🚀 核心优势
 - 🤖 **智能多Agent系统**: 基于 LangGraph 的并行分析架构
-- 📊 **全面A股数据**: MCP协议连接，35+专业数据分析工具  
+- 📊 **全面A股数据**: MCP协议连接，37个专业数据分析工具  
 - 💹 **三维度分析**: 基本面 + 技术面 + 估值分析并行执行
 - 🔄 **实时通信**: WebSocket 实时进度监控和日志展示
 - 📈 **可视化回测**: Chart.js 高清图表，实时进度跟踪
@@ -53,14 +53,14 @@ API服务层 (FastAPI实时分析 + Flask回测服务)
     ├── Gemini模型 (60秒超时 + 2次重试)
     └── 智能缓存系统 (价格缓存 + 分析缓存)
     ↓
-数据层 (35个MCP专业工具 + 回测系统)
+数据层 (37个MCP专业工具 + 回测系统)
 ```
 
 ### 💻 技术栈
 - **后端框架**: FastAPI + Flask + LangGraph + LangChain + asyncio
 - **前端技术**: 原生 HTML/CSS/JavaScript + WebSocket + Chart.js 
 - **AI模型**: Google Gemini 2.0 Flash (优化超时 + 重试机制)  
-- **数据源**: MCP Server (35+ A股专业数据工具)
+- **数据源**: MCP Server (37个A股专业数据工具)
 - **回测引擎**: 多频率决策支持 + 虚拟交易系统 + 综合性能统计
 
 ## 📦 快速开始
@@ -253,54 +253,64 @@ print(f"交易胜率: {results['win_rate']:.1%}")
 [具体的进场时机、持仓管理、止盈止损策略]
 ```
 
-## 🛠️ MCP数据工具总览 (35个专业工具)
+## 🛠️ MCP数据工具总览 (37个专业工具)
 
-本系统集成了35个专业的A股数据分析工具，覆盖全方位的投资分析需求：
+本系统集成了37个专业的A股数据分析工具，覆盖全方位的投资分析需求：
 
-### 📊 行情数据与基础信息 (2个工具)
+### 🏛️ 股票市场数据 (4个工具)
 - **get_historical_k_data**: 历史K线数据 (支持日/周/月/分钟级别)
 - **get_stock_basic_info**: 股票基本信息 (行业分类、市值等)
+- **get_dividend_data**: 历年分红信息 (分红率、派息记录)
+- **get_adjust_factor_data**: 复权因子数据 (前复权、后复权因子)
 
-### 📈 基本面数据分析 (10个工具)
+### 📊 财务报表数据 (6个工具)
 - **get_profit_data**: 季度盈利能力数据 (ROE、ROA、净利率等)  
 - **get_operation_data**: 季度运营能力数据 (各类周转率指标)
 - **get_growth_data**: 季度成长能力数据 (营收增长率、利润增长率)
 - **get_balance_data**: 资产负债表数据 (资产结构、负债情况)
 - **get_cash_flow_data**: 现金流量数据 (经营、投资、筹资现金流)
 - **get_dupont_data**: 杜邦分析数据 (ROE分解分析)
-- **get_dividend_data**: 历年分红信息 (分红率、派息记录)
-- **get_performance_express_report**: 业绩快报 (季度业绩预览)
-- **get_forecast_report**: 业绩预告 (管理层业绩指引)
 
-### 📉 技术分析工具 (3个工具)
-- **get_technical_indicators**: 全面技术指标计算 (MACD、RSI、KDJ、BOLL、WR等)
-- **get_moving_averages**: 多周期移动平均线 (5/10/20/50/120/250日)
-- **calculate_risk_metrics**: 风险指标计算 (贝塔、夏普比率、最大回撤、波动率)
-
-### 💰 估值分析工具 (4个工具)  
-- **get_valuation_metrics**: 估值指标与历史趋势 (PE、PB、PS及历史分位数)
-- **calculate_peg_ratio**: PEG比率计算 (市盈率相对盈利增长比率)
-- **calculate_dcf_valuation**: DCF现金流贴现估值模型
-- **compare_industry_valuation**: 同行业估值比较分析
-
-### 🏛️ 市场与行业数据 (5个工具)
-- **get_stock_industry**: 行业分类数据  
-- **get_sz50_stocks**: 上证50成分股列表
-- **get_hs300_stocks**: 沪深300成分股列表
-- **get_zz500_stocks**: 中证500成分股列表
+### 🔍 市场概览数据 (2个工具)
+- **get_trade_dates**: 交易日历查询 (获取指定时间范围内的交易日)
 - **get_all_stock**: 全市场股票清单及交易状态
 
-### 🌐 宏观经济数据 (8个工具)
+### 📈 指数相关数据 (4个工具)
+- **get_stock_industry**: 行业分类数据与板块信息
+- **get_sz50_stocks**: 上证50成分股列表与权重
+- **get_hs300_stocks**: 沪深300成分股列表与权重
+- **get_zz500_stocks**: 中证500成分股列表与权重
+
+### 🌐 宏观经济数据 (6个工具)
 - **get_deposit_rate_data**: 存款基准利率历史数据
 - **get_loan_rate_data**: 贷款基准利率历史数据  
-- **get_required_reserve_ratio_data**: 存款准备金率变化
-- **get_money_supply_data_month/year**: 货币供应量数据(M0/M1/M2)
+- **get_required_reserve_ratio_data**: 存款准备金率变化记录
+- **get_money_supply_data_month**: 月度货币供应量数据 (M0/M1/M2)
+- **get_money_supply_data_year**: 年度货币供应量数据汇总
 - **get_shibor_data**: 上海银行间同业拆放利率
 
-### 🔧 辅助分析工具 (3个工具)
-- **get_latest_trading_date**: 获取最近交易日
-- **get_market_analysis_timeframe**: 分析时间范围建议
+### ⏰ 日期工具 & 分析 (2个工具)
+- **get_latest_trading_date**: 获取最近交易日期
 - **get_stock_analysis**: 综合数据驱动分析报告
+
+### 📉 技术指标分析 (4个工具)
+- **get_technical_indicators**: 全面技术指标计算 (MACD、RSI、KDJ、BOLL、WR等)
+- **get_moving_averages**: 多周期移动平均线 (5/10/20/50/120/250日)
+- **calculate_bollinger_bands**: 布林带指标计算 (上轨、中轨、下轨)
+- **calculate_macd**: MACD指标详细计算 (DIF、DEA、MACD柱状线)
+- **calculate_rsi**: RSI相对强弱指标计算
+
+### 💰 估值分析工具 (5个工具)
+- **get_valuation_metrics**: 估值指标与历史趋势 (PE、PB、PS及历史分位数)
+- **calculate_peg_ratio**: PEG比率计算 (市盈率相对盈利增长比率)
+- **calculate_ddm_valuation**: DDM股利贴现模型估值
+- **calculate_dcf_valuation**: DCF现金流贴现估值模型
+- **get_comparable_analysis**: 同行业可比公司估值分析
+
+### 🔧 其他工具 (4个工具)
+- **get_market_analysis_timeframe**: 市场分析时间框架建议
+- **format_trading_calendar**: 交易日历格式化工具
+- **validate_stock_code**: 股票代码格式验证与标准化
 
 > 📋 **详细API文档**: 每个工具的完整参数说明和使用示例请参考 [DOCUMENTS.md](DOCUMENTS.md)
 
